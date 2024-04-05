@@ -3,7 +3,8 @@
 @crt_album
 @crt_artist
 @crt_genre
-@crt_guess
+@crt_daily_guess
+@crt_custom_guess
 @crt_song
 @crt_user
 @crt_cp
