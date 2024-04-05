@@ -1,5 +1,5 @@
 create table custom_puzzle(
-   cp_id int primary key,
+   cp_id int primary key auto_increment,
    user_id int,
    song_id int,
    constraint u_id_fk foreign key (user_id) references user(user_id),
