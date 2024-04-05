@@ -17,9 +17,7 @@
 
 # LOAD DATA==========================================================
 # song
-
 sqlldr ckuczun/claud control=sql/song.ctl
-
 # artist
 sqlldr ckuczun/claud control=sql/artist.ctl
 # genre
