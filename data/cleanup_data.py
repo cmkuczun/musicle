@@ -8,4 +8,4 @@ columns_to_remove = ['track_number', 'disc_number', 'explicit', 'key', 'duration
 df = df.drop(columns=columns_to_remove)
 
 # Save the modified DataFrame back to a CSV file
-df.to_csv('cleaned_tracks.csv', index=False)
+df.to_csv('songs.csv', index=False)
