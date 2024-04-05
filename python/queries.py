@@ -95,11 +95,9 @@ def insert_daily_guess(args):
 def insert_song_artist(args):
     '''
     song_id int,
-    artist_id int,
-    artist varchar(100),
-    '''
-    song_id,artist_id,artist = args
-    q = 'INSERT INTO song_artist VALUES (' + song_id + ', ' + artist_id + ', ' + artist + ');'
+    artist_id int    '''
+    song_id,artist_id = args
+    q = 'INSERT INTO song_artist VALUES (' + song_id + ', ' + artist_id + ');'
     return q
 
 
