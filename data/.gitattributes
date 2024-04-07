@@ -1,3 +1,10 @@
 songs.csv filter=lfs diff=lfs merge=lfs -text
 og_songs.csv filter=lfs diff=lfs merge=lfs -text
 song_artists.csv filter=lfs diff=lfs merge=lfs -text
+csv/song_artists.csv filter=lfs diff=lfs merge=lfs -text
+csv/songs.csv filter=lfs diff=lfs merge=lfs -text
+csv/albums.csv filter=lfs diff=lfs merge=lfs -text
+csv/artists.csv filter=lfs diff=lfs merge=lfs -text
+csv/genres.csv filter=lfs diff=lfs merge=lfs -text
+csv/song_albums.csv filter=lfs diff=lfs merge=lfs -text
+genres.csv filter=lfs diff=lfs merge=lfs -text

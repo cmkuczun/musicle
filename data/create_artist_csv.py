@@ -28,12 +28,12 @@ for _, row in df.iterrows():
         # matching number of artists and artist IDs, create a row for each artist
         for artist, artist_id in zip(artists, artist_ids):
             exploded_rows.append({
-                'artist': artist,
-                'artist_id': artist_id
+                'artist_id': artist_id,
+                'artist': artist
             })
 
 # create df from exploded rows
-exploded_df = pd.DataFrame(exploded_rows)
+exploded_df = pd.DataFrame(exploded_rows).drop_duplicates()
 
 # save df to new CSV file
 exploded_df.to_csv('artists.csv', index=False)
