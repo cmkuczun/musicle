@@ -4,6 +4,6 @@ CSV FILES
 - songs         (DONE)
 - genres        (DONE)
 - albums        (DONE)
-- artist_genres
+- artist_genres (DONE)
 - song_albums   (DONE)
 - song_artists  (DONE)
