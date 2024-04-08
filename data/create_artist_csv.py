@@ -2,7 +2,7 @@ import pandas as pd
 import ast
 
 # read all songs CSV file
-df = pd.read_csv('og_songs.csv')
+df = pd.read_csv('csv/og_songs.csv')
 
 # convert string representation of list to actual list for 'artists' and 'artist_ids' cols
 df['artists'] = df['artists'].apply(lambda x: ast.literal_eval(x))
@@ -36,4 +36,4 @@ for _, row in df.iterrows():
 exploded_df = pd.DataFrame(exploded_rows).drop_duplicates()
 
 # save df to new CSV file
-exploded_df.to_csv('artists.csv', index=False)
+exploded_df.to_csv('csv/artists.csv', index=False)

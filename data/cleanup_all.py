@@ -10,22 +10,14 @@ songs = pd.read_csv('csv/songs.csv') # DONE
 song_artists = pd.read_csv('csv/song_artists.csv') # DONE
 song_albums = pd.read_csv('csv/song_albums.csv') # DONE
 artist_genres = pd.read_csv('csv/artist_genres.csv') # DONE
-
-# collect all artst_ids that have no genre
-to_eradicate = []
-for ag in artist_genres:
-    if ag[1] == '':
-        to_eradicate.append(ag[0])
-        # remove artist_id row from artist_genres
-        artist_genres = artist_genres[artist_genres['artist_id'] != ag['artist_id']]
     
 # find difference between set of artist_ids in artists and artist_ids in genres
 artist_ids = set(artists['artist_id'].tolist())
 genre_artist_ids = set(artist_genres['artist_id'].tolist())
 to_eradicate = artist_ids - genre_artist_ids
 
-# remove rows from artists that have an artist_id in to_eradicate
-artists = artists[artists['artist_id'].isin(to_eradicate)]
+# only keep rows from artists that do not an artist_id in to_eradicate
+artists = artists[~artists['artist_id'].isin(to_eradicate)]
 
 # remove rows from song_artists that have no artist_id in artists
 song_artists = song_artists[song_artists['artist_id'].isin(artists['artist_id'])]

@@ -2,7 +2,7 @@ import pandas as pd
 import ast
 
 # read in og csv file
-df = pd.read_csv('og_songs.csv')
+df = pd.read_csv('csv/og_songs.csv')
 
 # convert string representation of list to actual list for 'artist_ids' col
 df['artist_ids'] = df['artist_ids'].apply(lambda x: ast.literal_eval(x))
@@ -27,4 +27,4 @@ for _, row in df.iterrows():
 result_df = pd.DataFrame(rows)
 
 # save df to as csv file
-result_df.to_csv('song_artists.csv', index=False)
+result_df.to_csv('csv/song_artists.csv', index=False)
