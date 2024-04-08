@@ -1,36 +1,36 @@
 # CREATE TABLES=======================================================
 # main tables
-@crt_album
-@crt_artist
-@crt_genre
-@crt_daily_guess
-@crt_custom_guess
-@crt_song
-@crt_user
-@crt_cp
-@crt_dp
+sqlplus @crt_album
+sqlplus @crt_artist
+sqlplus @crt_genre
+sqlplus @crt_daily_guess
+sqlplus @crt_custom_guess
+sqlplus @crt_song
+sqlplus @crt_user
+sqlplus @crt_cp
+sqlplus @crt_dp
 
 # one to many tables
-@crt_song_artist
-@crt_song_genre
-@crt_artist_genre
+sqlplus @crt_song_artist
+sqlplus @crt_song_genre
+sqlplus @crt_artist_genre
 
 
 # LOAD DATA==========================================================
 # song
-sqlldr ckuczun/claud control=sql/song.ctl
+sqlldr ckuczun/claud control=sql/song.ctl skip=1
 # artist
-sqlldr ckuczun/claud control=sql/artist.ctl
+sqlldr ckuczun/claud control=sql/artist.ctl skip=1
 # genre
-sqlldr ckuczun/claud control=sql/genre.ctl
+sqlldr ckuczun/claud control=sql/genre.ctl skip=1
 # album
-sqlldr ckuczun/claud control=sql/album.ctl
+sqlldr ckuczun/claud control=sql/album.ctl skip=1
 
 # song_artist
 sqlplus ckuczun/claud <<EOF 
 ALTER TABLE song_artist DISABLE CONSTRAINT s_id_fk; ALTER TABLE song_artist DISABLE CONSTRAINT a_id_fk; exit; 
 EOF
-sqlldr ckuczun/claud control=sql/song_artist.ctl
+sqlldr ckuczun/claud control=sql/song_artist.ctl skip=1
 sqlplus ckuczun/claud <<EOF 
 ALTER TABLE song_artist ENABLE CONSTRAINT s_id_fk; ALTER TABLE song_artist ENABLE CONSTRAINT a_id_fk; exit; 
 EOF
@@ -39,7 +39,7 @@ EOF
 sqlplus ckuczun/claud <<EOF 
 ALTER TABLE song_album DISABLE CONSTRAINT s_id_fk; ALTER TABLE song_album DISABLE CONSTRAINT a_id_fk; exit; 
 EOF
-sqlldr ckuczun/claud control=sql/song_album.ctl
+sqlldr ckuczun/claud control=sql/song_album.ctl skip=1
 sqlplus ckuczun/claud <<EOF 
 ALTER TABLE song_album ENABLE CONSTRAINT s_id_fk; ALTER TABLE song_album ENABLE CONSTRAINT a_id_fk; exit; 
 EOF
@@ -48,7 +48,7 @@ EOF
 sqlplus ckuczun/claud <<EOF 
 ALTER TABLE artist_genre DISABLE CONSTRAINT a_id_fk; ALTER TABLE artist_genre DISABLE CONSTRAINT g_id_fk; exit; 
 EOF
-sqlldr ckuczun/claud control=sql/artist_genre.ctl
+sqlldr ckuczun/claud control=sql/artist_genre.ctl skip=1
 sqlplus ckuczun/claud <<EOF 
 ALTER TABLE artist_genre ENABLE CONSTRAINT a_id_fk; ALTER TABLE artist_genre ENABLE CONSTRAINT g_id_fk; exit; 
 EOF
