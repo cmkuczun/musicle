@@ -1,0 +1,22 @@
+# Use the official Node.js 16 image as a parent image
+FROM node:latest as fe-stage
+
+# Set the working directory in the Docker container
+WORKDIR /app
+
+# Copy the package.json and package-lock.json (or yarn.lock) file into the working directory
+ENV PATH /app/node_modules/.bin:$PATH
+COPY ./songuess-fe/package*.json ./
+COPY ./songuess-fe/src ./src
+COPY ./songuess-fe/public ./public
+# Alternatively, if you're using yarn, you would copy the yarn.lock file as well:
+# COPY package.json yarn.lock ./
+
+# Install the project dependencies
+RUN npm install
+
+# Expose the port the app runs on
+EXPOSE 3000
+
+# Run the app
+CMD ["npm", "start"]

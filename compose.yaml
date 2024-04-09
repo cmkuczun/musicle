@@ -10,3 +10,21 @@ services:
           target: /code
   redis:
     image: "redis:alpine"
+  festage:
+    build:
+        context: .
+        dockerfile: Dockerfile.festage
+    volumes:
+      - ./songuess-fe:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    develop:
+      context: .
+      dockerfile: Dockerfile.festage
+      watch:
+        - action: sync
+          path: ./songuess-fe
+          target: /app
+    environment:
+      - CHOKIDAR_USEPOLLING=true

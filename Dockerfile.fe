@@ -1,0 +1,29 @@
+# Stage 1: Build the React application
+FROM node:latest as build-stage
+WORKDIR /app
+
+# Copy the package.json and package-lock.json (or yarn.lock) files
+ENV PATH /app/node_modules/.bin:$PATH
+COPY ./songuess-fe/package.json ./songuess-fe/package-lock.json ./
+COPY ./songuess-fe/src ./src
+COPY ./songuess-fe/public ./public
+# Install project dependencies
+RUN npm install
+
+# Copy the project files into the container
+
+# Build the project for production
+RUN npm run build
+# Or, if you're using yarn:
+# RUN yarn build
+
+# Stage 2: Serve the React application from Nginx
+FROM nginx:stable-alpine as serve-stage
+
+# Copy the build output to replace the default nginx contents.
+COPY --from=build-stage /app/build /usr/share/nginx/html
+
+# Expose port 80 to the outside once the container has launched
+EXPOSE 80
+
+# No need to specify CMD because the base image already defines a command to start Nginx.
