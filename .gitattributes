@@ -1,1 +1,2 @@
 cleaned_tracks.csv filter=lfs diff=lfs merge=lfs -text
+data/artists.csv filter=lfs diff=lfs merge=lfs -text

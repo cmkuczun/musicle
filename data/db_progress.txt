@@ -1,0 +1,9 @@
+CSV FILES
+======================
+- artists       (DONE)
+- songs         (DONE)
+- genres        (DONE)
+- albums        (DONE)
+- artist_genres (DONE)
+- song_albums   (DONE)
+- song_artists  (DONE)
