@@ -7,7 +7,7 @@ function App() {
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>
-          Edit <code>src/App.js</code> and sdddavedddd to fonk.
+          Edit <code>src/App.js</code> and your edits to fonk.
         </p>
         <a
           className="App-link"

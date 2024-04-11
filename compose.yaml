@@ -1,16 +1,41 @@
 services:
-  web:
-    build: .
+  be-stage:
+    image: backend
+    profiles: ["stage"]
+    build:
+      context: .
+      dockerfile: Dockerfile.bestage
     ports:
       - "8000:5000"
     develop:
+      dockerfile: Dockerfile.bestage
+      watch:
+        - action: sync
+          path: .
+          target: /code
+    volumes:
+      - .:/code # Mount the current directory to /code in the container
+    environment:
+      FLASK_ENV: development # Optionally set Flask to development to enable debug mode
+  be:
+    profiles: ["prod"]
+    build:
+      context: .
+      dockerfile: Dockerfile.be
+    ports:
+      - "8000:5000"
+    develop:
+      dockerfile: Dockerfile.be
       watch:
         - action: sync
           path: .
           target: /code
   redis:
+    profiles: ["stage", "prod"]
     image: "redis:alpine"
   festage:
+    image: frontend
+    profiles: ["stage"]
     build:
         context: .
         dockerfile: Dockerfile.festage
@@ -26,5 +51,24 @@ services:
         - action: sync
           path: ./songuess-fe
           target: /app
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+  fe:
+    profiles: ["prod"]
+    build:
+        context: .
+        dockerfile: Dockerfile.fe
+    volumes:
+      - ./songuess-fe:/app
+      - /app/node_modules
+    ports:
+      - "80:80"
+    # develop:
+    #   context: .
+    #   dockerfile: Dockerfile.fe
+    #   watch:
+    #     - action: sync
+    #       path: ./songuess-fe
+    #       target: /app
     environment:
       - CHOKIDAR_USEPOLLING=true
