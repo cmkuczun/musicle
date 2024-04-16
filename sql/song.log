@@ -1,0 +1,112 @@
+
+SQL*Loader: Release 11.2.0.2.0 - Production on Mon Apr 15 20:45:26 2024
+
+Copyright (c) 1982, 2009, Oracle and/or its affiliates.  All rights reserved.
+
+Control File:   song.ctl
+Data File:      ../data/csv/songs.csv
+  Bad File:     songs.bad
+  Discard File:  none specified
+ 
+ (Allow all discards)
+
+Number to load: ALL
+Number to skip: 0
+Errors allowed: 50
+Bind array:     64 rows, maximum of 256000 bytes
+Continuation:    none specified
+Path used:      Conventional
+
+Table SONG, loaded from every logical record.
+Insert option in effect for this table: INSERT
+
+   Column Name                  Position   Len  Term Encl Datatype
+------------------------------ ---------- ----- ---- ---- ---------------------
+SONG_ID                             FIRST     *   ,  O(") CHARACTER            
+SONG_NAME                            NEXT     *   ,  O(") CHARACTER            
+DANCEABILITY                         NEXT     *   ,  O(") CHARACTER            
+ENERGY                               NEXT     *   ,  O(") CHARACTER            
+LOUDNESS                             NEXT     *   ,  O(") CHARACTER            
+SONG_MODE                            NEXT     *   ,  O(") CHARACTER            
+SPEECHINESS                          NEXT     *   ,  O(") CHARACTER            
+ACOUSTICNESS                         NEXT     *   ,  O(") CHARACTER            
+INSTRUMENTALNESS                     NEXT     *   ,  O(") CHARACTER            
+LIVENESS                             NEXT     *   ,  O(") CHARACTER            
+VALENCE                              NEXT     *   ,  O(") CHARACTER            
+TEMPO                                NEXT     *   ,  O(") CHARACTER            
+
+Record 155811: Rejected - Error on table SONG, column SONG_NAME.
+Field in data file exceeds maximum length
+Record 166993: Rejected - Error on table SONG, column SONG_NAME.
+Field in data file exceeds maximum length
+Record 166994: Rejected - Error on table SONG, column SONG_NAME.
+Field in data file exceeds maximum length
+Record 180643: Rejected - Error on table SONG, column SONG_NAME.
+Field in data file exceeds maximum length
+Record 180664: Rejected - Error on table SONG, column SONG_NAME.
+Field in data file exceeds maximum length
+Record 190684: Rejected - Error on table SONG, column SONG_NAME.
+Field in data file exceeds maximum length
+Record 190685: Rejected - Error on table SONG, column SONG_NAME.
+Field in data file exceeds maximum length
+Record 190686: Rejected - Error on table SONG, column SONG_NAME.
+Field in data file exceeds maximum length
+Record 190687: Rejected - Error on table SONG, column SONG_NAME.
+Field in data file exceeds maximum length
+Record 193725: Rejected - Error on table SONG, column SONG_NAME.
+Field in data file exceeds maximum length
+Record 193731: Rejected - Error on table SONG, column SONG_NAME.
+Field in data file exceeds maximum length
+Record 193734: Rejected - Error on table SONG, column SONG_NAME.
+Field in data file exceeds maximum length
+Record 240368: Rejected - Error on table SONG, column SONG_NAME.
+Field in data file exceeds maximum length
+Record 240369: Rejected - Error on table SONG, column SONG_NAME.
+Field in data file exceeds maximum length
+Record 240370: Rejected - Error on table SONG, column SONG_NAME.
+Field in data file exceeds maximum length
+Record 240372: Rejected - Error on table SONG, column SONG_NAME.
+Field in data file exceeds maximum length
+Record 240374: Rejected - Error on table SONG, column SONG_NAME.
+Field in data file exceeds maximum length
+Record 240377: Rejected - Error on table SONG, column SONG_NAME.
+Field in data file exceeds maximum length
+Record 240379: Rejected - Error on table SONG, column SONG_NAME.
+Field in data file exceeds maximum length
+Record 240380: Rejected - Error on table SONG, column SONG_NAME.
+Field in data file exceeds maximum length
+Record 368363: Rejected - Error on table SONG, column SONG_NAME.
+Field in data file exceeds maximum length
+Record 368364: Rejected - Error on table SONG, column SONG_NAME.
+Field in data file exceeds maximum length
+Record 368365: Rejected - Error on table SONG, column SONG_NAME.
+Field in data file exceeds maximum length
+Record 418257: Rejected - Error on table SONG, column SONG_NAME.
+Field in data file exceeds maximum length
+Record 506672: Rejected - Error on table SONG, column SONG_NAME.
+Field in data file exceeds maximum length
+Record 515262: Rejected - Error on table SONG, column SONG_NAME.
+Field in data file exceeds maximum length
+Record 636289: Rejected - Error on table SONG, column SONG_NAME.
+Field in data file exceeds maximum length
+
+Table SONG:
+  644970 Rows successfully loaded.
+  27 Rows not loaded due to data errors.
+  0 Rows not loaded because all WHEN clauses were failed.
+  0 Rows not loaded because all fields were null.
+
+
+Space allocated for bind array:                 198144 bytes(64 rows)
+Read   buffer bytes: 1048576
+
+Total logical records skipped:          0
+Total logical records read:        644997
+Total logical records rejected:        27
+Total logical records discarded:        0
+
+Run began on Mon Apr 15 20:45:26 2024
+Run ended on Mon Apr 15 20:46:11 2024
+
+Elapsed time was:     00:00:45.39
+CPU time was:         00:00:02.29

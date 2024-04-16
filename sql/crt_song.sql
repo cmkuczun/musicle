@@ -1,10 +1,10 @@
 create table song(
-   song_id int primary key,
-   title varchar(200),
+   song_id varchar(50) primary key,
+   song_name varchar(1500),
    danceability float,
    energy float,
    loudness float,
-   mode int,
+   song_mode int,
    speechiness float,
    acousticness float,
    instrumentalness float,

@@ -1,0 +1,61 @@
+
+SQL*Loader: Release 11.2.0.2.0 - Production on Mon Apr 15 20:46:17 2024
+
+Copyright (c) 1982, 2009, Oracle and/or its affiliates.  All rights reserved.
+
+Control File:   song_artist.ctl
+Data File:      ../data/csv/song_artists.csv
+  Bad File:     song_artists.bad
+  Discard File:  none specified
+ 
+ (Allow all discards)
+
+Number to load: ALL
+Number to skip: 0
+Errors allowed: 50
+Continuation:    none specified
+Path used:      Direct
+
+Table SONG_ARTIST, loaded from every logical record.
+Insert option in effect for this table: INSERT
+
+   Column Name                  Position   Len  Term Encl Datatype
+------------------------------ ---------- ----- ---- ---- ---------------------
+SONG_ID                             FIRST     *   ,  O(") CHARACTER            
+ARTIST_ID                            NEXT     *   ,  O(") CHARACTER            
+
+
+Referential Integrity Constraint/Trigger Information:
+NULL, UNIQUE, and PRIMARY KEY constraints are unaffected.
+
+Constraint SONG_ARTIST.SAR_S_ID_FK was disabled and novalidated before the load.
+Constraint SONG_ARTIST.SAR_A_ID_FK was disabled and novalidated before the load.
+The following index(es) on table SONG_ARTIST were processed:
+index GUEST.PK_SONG_ARTIST loaded successfully with 766108 keys
+
+Table SONG_ARTIST has no constraint exception table.
+No CHECK, REFERENTIAL constraints were re-enabled after the load.
+
+Table SONG_ARTIST:
+  766108 Rows successfully loaded.
+  0 Rows not loaded due to data errors.
+  0 Rows not loaded because all WHEN clauses were failed.
+  0 Rows not loaded because all fields were null.
+
+Bind array size not used in direct path.
+Column array  rows :    5000
+Stream buffer bytes:  256000
+Read   buffer bytes: 1048576
+
+Total logical records skipped:          0
+Total logical records read:        766108
+Total logical records rejected:         0
+Total logical records discarded:        0
+Total stream buffers loaded by SQL*Loader main thread:      168
+Total stream buffers loaded by SQL*Loader load thread:        0
+
+Run began on Mon Apr 15 20:46:17 2024
+Run ended on Mon Apr 15 20:46:22 2024
+
+Elapsed time was:     00:00:04.88
+CPU time was:         00:00:00.38

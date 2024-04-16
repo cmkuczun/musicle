@@ -1,0 +1,49 @@
+
+SQL*Loader: Release 11.2.0.2.0 - Production on Mon Apr 15 20:46:12 2024
+
+Copyright (c) 1982, 2009, Oracle and/or its affiliates.  All rights reserved.
+
+Control File:   album.ctl
+Data File:      ../data/csv/albums.csv
+  Bad File:     albums.bad
+  Discard File:  none specified
+ 
+ (Allow all discards)
+
+Number to load: ALL
+Number to skip: 0
+Errors allowed: 50
+Bind array:     64 rows, maximum of 256000 bytes
+Continuation:    none specified
+Path used:      Conventional
+
+Table ALBUM, loaded from every logical record.
+Insert option in effect for this table: INSERT
+
+   Column Name                  Position   Len  Term Encl Datatype
+------------------------------ ---------- ----- ---- ---- ---------------------
+ALBUM_ID                            FIRST     *   ,  O(") CHARACTER            
+ALBUM_NAME                           NEXT     *   ,  O(") CHARACTER            
+RELEASE_DATE                         NEXT     *   ,  O(") DATE YYYY-MM-DD      
+
+
+Table ALBUM:
+  61302 Rows successfully loaded.
+  0 Rows not loaded due to data errors.
+  0 Rows not loaded because all WHEN clauses were failed.
+  0 Rows not loaded because all fields were null.
+
+
+Space allocated for bind array:                  49536 bytes(64 rows)
+Read   buffer bytes: 1048576
+
+Total logical records skipped:          0
+Total logical records read:         61302
+Total logical records rejected:         0
+Total logical records discarded:        0
+
+Run began on Mon Apr 15 20:46:12 2024
+Run ended on Mon Apr 15 20:46:17 2024
+
+Elapsed time was:     00:00:04.73
+CPU time was:         00:00:00.12

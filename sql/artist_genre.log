@@ -1,0 +1,65 @@
+
+SQL*Loader: Release 11.2.0.2.0 - Production on Mon Apr 15 20:46:24 2024
+
+Copyright (c) 1982, 2009, Oracle and/or its affiliates.  All rights reserved.
+
+Control File:   artist_genre.ctl
+Data File:      ../data/csv/artist_genres.csv
+  Bad File:     artist_genres.bad
+  Discard File:  none specified
+ 
+ (Allow all discards)
+
+Number to load: ALL
+Number to skip: 0
+Errors allowed: 50
+Continuation:    none specified
+Path used:      Direct
+
+Table ARTIST_GENRE, loaded from every logical record.
+Insert option in effect for this table: INSERT
+
+   Column Name                  Position   Len  Term Encl Datatype
+------------------------------ ---------- ----- ---- ---- ---------------------
+ARTIST_ID                           FIRST     *   ,  O(") CHARACTER            
+GENRE_ID                             NEXT     *   ,  O(") CHARACTER            
+
+
+Referential Integrity Constraint/Trigger Information:
+NULL, UNIQUE, and PRIMARY KEY constraints are unaffected.
+
+Constraint ARTIST_GENRE.AG_A_ID_FK was disabled and novalidated before the load.
+Constraint ARTIST_GENRE.AG_G_ID_FK was disabled and novalidated before the load.
+ORA-01653: unable to extend table GUEST.ARTIST_GENRE by 8 in tablespace SYSTEM
+
+SQL*Loader-2026: the load was aborted because SQL Loader cannot continue.
+Specify SKIP=19701 when continuing the load.
+The following index(es) on table ARTIST_GENRE were processed:
+index GUEST.PK_ARTIST_GENRE was made unusable due to:
+ORA-01452: cannot CREATE UNIQUE INDEX; duplicate keys found
+
+Table ARTIST_GENRE has no constraint exception table.
+No CHECK, REFERENTIAL constraints were re-enabled after the load.
+
+Table ARTIST_GENRE:
+  19701 Rows successfully loaded.
+  0 Rows not loaded due to data errors.
+  0 Rows not loaded because all WHEN clauses were failed.
+  0 Rows not loaded because all fields were null.
+
+Bind array size not used in direct path.
+Column array  rows :    5000
+Stream buffer bytes:  256000
+Read   buffer bytes: 1048576
+
+Total logical records skipped:          0
+Total logical records rejected:         0
+Total logical records discarded:        0
+Total stream buffers loaded by SQL*Loader main thread:        4
+Total stream buffers loaded by SQL*Loader load thread:        0
+
+Run began on Mon Apr 15 20:46:24 2024
+Run ended on Mon Apr 15 20:46:24 2024
+
+Elapsed time was:     00:00:00.15
+CPU time was:         00:00:00.02

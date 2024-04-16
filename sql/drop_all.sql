@@ -1,0 +1,15 @@
+drop table artist_genre;
+drop table song_album;
+drop table song_artist;
+--drop table custom_guess;
+--drop table daily_guess;
+--drop table custom_puzzle;
+--drop table daily_puzzle;
+drop table guess;
+drop table puzzle;
+drop table usr;
+drop table genre;
+drop table artist;
+drop table album;
+drop table song;
+exit;
