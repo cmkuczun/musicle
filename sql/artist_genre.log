@@ -1,5 +1,5 @@
 
-SQL*Loader: Release 11.2.0.2.0 - Production on Mon Apr 15 20:46:24 2024
+SQL*Loader: Release 11.2.0.2.0 - Production on Sun Apr 21 21:37:26 2024
 
 Copyright (c) 1982, 2009, Oracle and/or its affiliates.  All rights reserved.
 
@@ -33,16 +33,16 @@ Constraint ARTIST_GENRE.AG_G_ID_FK was disabled and novalidated before the load.
 ORA-01653: unable to extend table GUEST.ARTIST_GENRE by 8 in tablespace SYSTEM
 
 SQL*Loader-2026: the load was aborted because SQL Loader cannot continue.
-Specify SKIP=19701 when continuing the load.
+Specify SKIP=21516 when continuing the load.
 The following index(es) on table ARTIST_GENRE were processed:
 index GUEST.PK_ARTIST_GENRE was made unusable due to:
-ORA-01452: cannot CREATE UNIQUE INDEX; duplicate keys found
+ORA-01654: unable to extend index GUEST.PK_ARTIST_GENRE by 8 in tablespace SYSTEM
 
 Table ARTIST_GENRE has no constraint exception table.
 No CHECK, REFERENTIAL constraints were re-enabled after the load.
 
 Table ARTIST_GENRE:
-  19701 Rows successfully loaded.
+  21516 Rows successfully loaded.
   0 Rows not loaded due to data errors.
   0 Rows not loaded because all WHEN clauses were failed.
   0 Rows not loaded because all fields were null.
@@ -50,16 +50,16 @@ Table ARTIST_GENRE:
 Bind array size not used in direct path.
 Column array  rows :    5000
 Stream buffer bytes:  256000
-Read   buffer bytes: 1048576
+Read   buffer bytes:200000000
 
 Total logical records skipped:          0
 Total logical records rejected:         0
 Total logical records discarded:        0
-Total stream buffers loaded by SQL*Loader main thread:        4
+Total stream buffers loaded by SQL*Loader main thread:        5
 Total stream buffers loaded by SQL*Loader load thread:        0
 
-Run began on Mon Apr 15 20:46:24 2024
-Run ended on Mon Apr 15 20:46:24 2024
+Run began on Sun Apr 21 21:37:26 2024
+Run ended on Sun Apr 21 21:37:26 2024
 
-Elapsed time was:     00:00:00.15
+Elapsed time was:     00:00:00.19
 CPU time was:         00:00:00.02

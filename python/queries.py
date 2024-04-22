@@ -1,10 +1,24 @@
 import cx_Oracle
 import requests
 
-# CONNECT TO ORACLE DB====================================================================================================
-connection = cx_Oracle.connect("guest", "guest", "localhost:1521/xe")
+# ORACLE DB SETUP====================================================================================================
+# create connection
+try: 
+    dsn_tns=cx_Oracle.makedsn('localhost','1521','xe')
+    connection = cx_Oracle.connect("guest", "guest", dsn_tns)
+    print("\nSTATUS: Connected to Oracle database.")
+except Exception as e:
+    print(print("\nSTATUS: Failed to connect to Oracle database."))
+    print("ERROR: ", e)
+
 # create cursor
-cursor = connection.cursor()
+try: 
+    cursor = connection.cursor()
+    print("\nSTATUS: Cursor created.\n")
+except Exception as e:
+    print("\nSTATUS: Failed to create cursor.")
+    print("ERROR: ", e)
+
 
 # API KEY FOR LAST.FM=========================================================================================================
 api_key = 'YOUR_API_KEY'
@@ -15,7 +29,7 @@ def execute(q):
     try:
         cursor.execute(q)
         connection.commit()
-        print("SUCCESS: query executed successfully")
+        print(f"SUCCESS: Query executed successfully ({q}).")
 
         # fetch results
         for row in cursor:
@@ -30,7 +44,7 @@ def execute(q):
 def insert_song(args):
     '''
     song_id int primary key,
-    title varchar(200),
+    song_name varchar(200),
     danceability float,
     energy float,
     loudness float,
@@ -47,38 +61,28 @@ def insert_song(args):
     return q
 
 
-def insert_custom_puzzle(args):
+def insert_puzzle(args):
     '''
-    cp_id int primary key auto_increment,
-    user_id int,
-    song_id int
-    '''
-    cp_id,user_id,song_id=args
-    q = 'INSERT INTO custom_puzzle VALUES (' + cp_id + ', ' + user_id + ', ' + song_id + ');'
-    return q
-
-
-def insert_daily_puzzle(args):
-    '''
-    dp_id int primary key auto_increment,
+    puzzle_id int primary key,
     song_id int,
     dp_date date
     '''  
     dp_id,song_id,dp_date = args
-    q = 'INSERT INTO daily_puzzle VALUES (' + dp_id + ', ' + song_id + ', ' + dp_date + ');'
+    q = 'INSERT INTO puzzle VALUES (' + dp_id + ', ' + song_id + ', ' + dp_date + ');'
     return q
 
 
 def insert_guess(args):
     '''
-    guess_id int primary key auto_increment,
+    guess_id int primary key,
     puzzle_id int,
     user_id int,
     song_id int,
-    is_correct boolean,
+    guess_num int,
+    is_correct int,
     '''
     guess_id,puzzle_id,user_id,song_id,is_correct = args
-    q = 'INSERT INTO daily_guess VALUES (' + guess_id + ', ' + puzzle_id + ', ' + user_id + ', ' + song_id + ', ' + is_correct + ');'
+    q = 'INSERT INTO guess VALUES (' + guess_id + ', ' + puzzle_id + ', ' + user_id + ', ' + song_id + ', ' + is_correct + ');'
     return q
 
 
@@ -184,6 +188,29 @@ def search_user_using_id(user_id):
     q = 'select * from user where user_id=' + user_id + ';' 
     return q
 
+
+def get_song_artist_id(song_id):
+    '''get artist id(s) from song id'''
+    artist_id_arr = []
+    #TODO
+    return artist_id_arr
+
+def get_artist_genre_id(artist_id):
+    '''get genre id(s) from artist id'''
+    genre_id_arr = []
+    #TODO
+    return genre_id_arr
+
+def get_song_album_id(song_id):
+    '''get album id from song id'''
+    album_id_arr = []
+    #TODO
+    return album_id_arr
+
+def get_song_stats(song_name):
+    '''get all information regarding a song, starting with song name'''
+
+
 # API QUERY=========================================================================================================
 # query API to get similar artists
 def get_similar_artists(artist_name):
@@ -202,4 +229,7 @@ def get_similar_artists(artist_name):
     except Exception as e:
         print(f"ERROR: {e}")
         return None
+
+
+
 
