@@ -26,25 +26,34 @@ api_key = 'YOUR_API_KEY'
 
 # EXECUTE QUERIES=========================================================================================================
 def execute(q):
+    # check for insert statement
+    if q.startswith("INSERT"):
+        print("NOTE: Insert query; ignore 'NOT A QUERY' error.")
+
+    # try to run the query
+    res = []
     try:
         cursor.execute(q)
         connection.commit()
-        print(f"SUCCESS: Query executed successfully ({q}).")
-
+    
         # fetch results
         for row in cursor:
-            print(row)
+            res.append(row)
+        print(f"SUCCESS: Query executed successfully ({q}).\n")
+        return res
+    
     except Exception as e:
         print("ERROR: ", e)
         connection.rollback()
+        return None
 
 
 # INSERT QUERIES=========================================================================================================
 # build query strings to insert into a table
-def insert_song(args):
+def insert_song(*args):
     '''
-    song_id int primary key,
-    song_name varchar(200),
+    song_id str primary key,
+    song_name str,
     danceability float,
     energy float,
     loudness float,
@@ -56,23 +65,39 @@ def insert_song(args):
     valence float,
     tempo float
     '''
-    song_id,title,danceability,energy,loudness,mode,speechiness,acousticness,instrumentalness,liveness,valence,tempo = args
-    q = 'INSERT INTO song VALUES (' + song_id + ', ' + title + ', ' + danceability + ', ' + energy + ', ' + loudness + ', ' + mode + ', ' + speechiness + ', ' + acousticness + ', ' + instrumentalness + ', ' + liveness + ', ' + valence + ', ' + tempo + ');'
+    song_id,song_name,danceability,energy,loudness,mode,speechiness,acousticness,instrumentalness,liveness,valence,tempo = args
+    danceability=str(danceability)
+    energy=str(energy)
+    loudness=str(loudness)
+    mode=str(mode)
+    speechiness=str(speechiness)
+    acousticness=str(acousticness)
+    instrumentalness=str(instrumentalness)
+    liveness=str(liveness)
+    valence=str(valence)
+    tempo=str(tempo)
+
+    q = "INSERT INTO song VALUES ('" + song_id + "', '" + song_name + "', " + danceability + ", " + energy + ", " + loudness + ", " + mode + ", " + speechiness + ", " + acousticness + ", " + instrumentalness + ", " + liveness + ", " + valence + ", " + tempo + ")"
     return q
 
 
-def insert_puzzle(args):
+def insert_puzzle(*args):
     '''
     puzzle_id int primary key,
-    song_id int,
-    dp_date date
+    song_id str,
+    user_id int,
+    puzzle_date date
     '''  
-    dp_id,song_id,dp_date = args
-    q = 'INSERT INTO puzzle VALUES (' + dp_id + ', ' + song_id + ', ' + dp_date + ');'
+    puzzle_id,song_id,user_id,puzzle_date = args
+    puzzle_id=str(puzzle_id)
+    user_id=str(user_id)
+    puzzle_date = "TO_DATE('" + puzzle_date + "', 'YYYY-MM-DD')"
+
+    q = "INSERT INTO puzzle VALUES (" + puzzle_id + ", '" + song_id + "', " + user_id + ", " + puzzle_date + ")"
     return q
 
 
-def insert_guess(args):
+def insert_guess(*args):
     '''
     guess_id int primary key,
     puzzle_id int,
@@ -81,83 +106,96 @@ def insert_guess(args):
     guess_num int,
     is_correct int,
     '''
-    guess_id,puzzle_id,user_id,song_id,is_correct = args
-    q = 'INSERT INTO guess VALUES (' + guess_id + ', ' + puzzle_id + ', ' + user_id + ', ' + song_id + ', ' + is_correct + ');'
+    guess_id,puzzle_id,user_id,song_id,guess_num,is_correct = args
+    guess_id=str(guess_id)
+    puzzle_id=str(puzzle_id)
+    user_id=str(user_id)
+    guess_num=str(guess_num)
+    is_correct=str(is_correct)
+
+    q = "INSERT INTO guess VALUES (" + guess_id + ", " + puzzle_id + ", " + user_id + ", '" + song_id + "', " + guess_num + ", " + is_correct + ")"
     return q
 
 
-def insert_song_artist(args):
+def insert_song_artist(*args):
     '''
-    song_id int,
-    artist_id int    '''
+    song_id str,
+    artist_id str    
+    '''
     song_id,artist_id = args
-    q = 'INSERT INTO song_artist VALUES (' + song_id + ', ' + artist_id + ');'
+    q = "INSERT INTO song_artist VALUES ('" + song_id + "', '" + artist_id + "')"
     return q
 
 
-def insert_song_album(args):
+def insert_song_album(*args):
     '''
-    song_id int,
-    album_id int
+    song_id str,
+    album_id str
     '''
     song_id,album_id = args
-    q = 'INSERT INTO song_album VALUES (' + song_id + ', ' + album_id + ');'
+    q = "INSERT INTO song_album VALUES ('" + song_id + "', '" + album_id + "')"
     return q
 
 
-def insert_artist_genre(args):
+def insert_artist_genre(*args):
     '''
-    genre_id int,
-    artist_id int
+    artist_id str,
+    genre_id int
     '''
-    genre_id,artist_id = args
-    q = 'INSERT INTO artist_genre VALUES (' + genre_id + ', ' + artist_id + ');'
+    artist_id,genre_id = args
+    genre_id=str(genre_id)
+
+    q = "INSERT INTO artist_genre VALUES ('" + artist_id + "', " + genre_id + ")"
     return q
 
 
-def insert_genre(args):
+def insert_genre(*args):
     '''
-    genre_id int primary key auto_increment,
-    genre varchar(100)
+    genre_id int primary key,
+    genre_name str
     '''
-    genre_id,genre = args
-    q = 'INSERT INTO genre VALUES (' + genre_id + ', ' + genre + ');'
+    genre_id,genre_name = args
+    genre_id=str(genre_id)
+
+    q = "INSERT INTO genre VALUES (" + genre_id + ", '" + genre_name + "')"
     return q
 
 
-def insert_user(args):
+def insert_user(*args):
     '''
-    user_id int primary key auto_increment,
-    username varchar(50),
-    password varchar(100)
+    user_id int primary key,
+    username str,
+    password str
     '''
     user_id,username,password = args
-    q = 'INSERT INTO user VALUES (' + user_id + ', ' + username + ', ' + password + ');'
+    user_id=str(user_id)
+
+    q = "INSERT INTO usr VALUES (" + user_id + ", '" + username + "', '" + password + "')"
     return q
 
 
-def insert_album(args):
+def insert_album(*args):
     '''
-    album_id int primary key,
-    album_name varchar(100),
-    release_date date
+    album_id str primary key,
+    album_name str,
+    release_date str
     '''
     album_id,album_name,release_date = args
+    release_date = "TO_DATE('" + release_date + "', 'YYYY-MM-DD')"
 
-    # parse date
-    release_date = 'TO_DATE(' + release_date + ', "YYYY-MM-DD")'
-    q = 'INSERT INTO album VALUES (' + album_id + ', ' + album_name + ', ' + release_date + ');'
+    q = "INSERT INTO album VALUES ('" + album_id + "', '" + album_name + "', " + release_date + ")"
     return q
 
 
-def insert_artist(args):
+def insert_artist(*args):
     '''
-    artist_id int primary key,
-    artist_name varchar(100)
+    artist_id str primary key,
+    artist_name str
     '''
     artist_id,artist_name = args
-    q = 'INSERT INTO artist VALUES (' + artist_id + ', ' + artist_name + ');'
+    q = "INSERT INTO artist VALUES ('" + artist_id + "', '" + artist_name + "')"
     return q
+
 
 
 # SEARCH QUERIES=========================================================================================================
@@ -165,17 +203,18 @@ def insert_artist(args):
 
 def search_song_using_id(song_id):
     # song_id is a string
-    q = 'select * from song where song_id="' + song_id + '";' 
+    q = 'select * from song where song_id="' + song_id + '"' 
     return q
 
 def search_artist_using_id(artist_id):
     # artist_id is a string
-    q = 'select * from artist where artist_id="' + artist_id + '";' 
+    q = 'select * from artist where artist_id="' + artist_id + '"' 
     return q
 
 def search_genre_using_id(genre_id):
     # genre_id is a number
-    q = 'select * from genre where genre_id=' + genre_id + ';' 
+    genre_id=str(genre_id)
+    q = "select * from genre where genre_id=" + genre_id
     return q
 
 def search_album_using_id(album_id):
