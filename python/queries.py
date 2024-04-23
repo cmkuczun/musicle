@@ -1,6 +1,6 @@
 import cx_Oracle
 import requests
-from song import Song
+import pprint
 
 # ORACLE DB SETUP====================================================================================================
 # create connection
@@ -77,10 +77,8 @@ def insert_song(*args):
     liveness=str(liveness)
     valence=str(valence)
     tempo=str(tempo)
-
     q = "INSERT INTO song VALUES ('" + song_id + "', '" + song_name + "', " + danceability + ", " + energy + ", " + loudness + ", " + mode + ", " + speechiness + ", " + acousticness + ", " + instrumentalness + ", " + liveness + ", " + valence + ", " + tempo + ")"
     return q
-
 
 def insert_puzzle(*args):
     '''
@@ -97,7 +95,6 @@ def insert_puzzle(*args):
     q = "INSERT INTO puzzle VALUES (" + puzzle_id + ", '" + song_id + "', " + user_id + ", " + puzzle_date + ")"
     return q
 
-
 def insert_guess(*args):
     '''
     guess_id int primary key,
@@ -113,10 +110,8 @@ def insert_guess(*args):
     user_id=str(user_id)
     guess_num=str(guess_num)
     is_correct=str(is_correct)
-
     q = "INSERT INTO guess VALUES (" + guess_id + ", " + puzzle_id + ", " + user_id + ", '" + song_id + "', " + guess_num + ", " + is_correct + ")"
     return q
-
 
 def insert_song_artist(*args):
     '''
@@ -127,7 +122,6 @@ def insert_song_artist(*args):
     q = "INSERT INTO song_artist VALUES ('" + song_id + "', '" + artist_id + "')"
     return q
 
-
 def insert_song_album(*args):
     '''
     song_id str,
@@ -137,7 +131,6 @@ def insert_song_album(*args):
     q = "INSERT INTO song_album VALUES ('" + song_id + "', '" + album_id + "')"
     return q
 
-
 def insert_artist_genre(*args):
     '''
     artist_id str,
@@ -145,10 +138,8 @@ def insert_artist_genre(*args):
     '''
     artist_id,genre_id = args
     genre_id=str(genre_id)
-
     q = "INSERT INTO artist_genre VALUES ('" + artist_id + "', " + genre_id + ")"
     return q
-
 
 def insert_genre(*args):
     '''
@@ -160,7 +151,6 @@ def insert_genre(*args):
 
     q = "INSERT INTO genre VALUES (" + genre_id + ", '" + genre_name + "')"
     return q
-
 
 def insert_user(*args):
     '''
@@ -174,7 +164,6 @@ def insert_user(*args):
     q = "INSERT INTO usr VALUES (" + user_id + ", '" + username + "', '" + password + "')"
     return q
 
-
 def insert_album(*args):
     '''
     album_id str primary key,
@@ -187,7 +176,6 @@ def insert_album(*args):
     q = "INSERT INTO album VALUES ('" + album_id + "', '" + album_name + "', " + release_date + ")"
     return q
 
-
 def insert_artist(*args):
     '''
     artist_id str primary key,
@@ -198,12 +186,8 @@ def insert_artist(*args):
     return q
 
 
-
 # BASIC QUERIES=========================================================================================================
 # build query strings to search for specific data
-
-# NOTE MAYBE RETURN TARGET QUERY RESULTS (FOR HINTS) BELOW??? OR IN OTHER FUNC - GET_SONG_STATS.... hmmmm
-
 def get_id_from_song(song_name):
     '''search for song id using EXACT song name'''
     q = "select song_id from song where song_name like '{}'".format(song_name) 
@@ -244,7 +228,7 @@ def get_artist_from_song(song_id):
         for artist in res:
             res_arr.append(artist[0])
         return res_arr
-    return res[0]
+    return list(res[0])
 
 def get_artist_from_id(artist_id):
     '''get artist name from artist id'''
@@ -269,59 +253,161 @@ def get_genre_from_artist(artist_id):
 
 def get_genre_from_id(genre_id):
     '''get genre name from genre id'''
-    q = "select genre_name from genre where genre_id='{}'".format(str(genre_id))
+    if genre_id is not None:
+        print(genre_id)
+        q = "select genre_name from genre where genre_id='{}'".format(str(genre_id))
+        res = execute(q)
+        return res[0][0]
+    return None
+
+def get_user_id(username,password):
+    '''supporting method to return just user id'''
+    q = "select user_id from usr where username='{}' and password='{}'".format(username,password)
     res = execute(q)
-    return res[0][0]
+    user_id = res[0][0]
+    return user_id
 
 
+# ADVANCED FUNCTIONS=========================================================================================================
+def build_dict(target_song_name, target_song_id, target_song_info,
+                target_album_id, target_album_info,
+                target_artist_ids, target_artist_names,
+                target_genre_ids, target_genres):
+    song_stats = dict()
+    song_stats['song id'] = target_song_id # add to output dict
+    song_stats['song name'] = target_song_name
+    song_stats['danceability'] = target_song_info[0]
+    song_stats['energy'] = target_song_info[1]
+    song_stats['loudness'] = target_song_info[2]
+    song_stats['song_mode'] = target_song_info[3]
+    song_stats['speechiness'] = target_song_info[4]
+    song_stats['acousticness'] = target_song_info[5]
+    song_stats['instrumentalness'] = target_song_info[6]
+    song_stats['liveness'] = target_song_info[7]
+    song_stats['valence'] = target_song_info[8]
+    song_stats['tempo'] = target_song_info[9]
 
-# ADVANCED QUERIES=========================================================================================================
+    song_stats['artists'] = []
+    
+    # make a dictionary for all artists
+    for a_id, a_name in zip(target_artist_ids,target_artist_names):
+        curr_artist = dict()
+        curr_artist['artist_id'] = a_id
+        curr_artist['artist_name'] = a_name   
+        # for each genre id of the current artist id
+        curr_genres = {}
+        for g_id in target_genre_ids[a_id]:
+            # get the genre name
+            g_name = target_genres[g_id]
+            curr_genres[g_id] = g_name
+        curr_artist['genres'] = curr_genres
+        song_stats['artists'].append(curr_artist)
+
+    # make a dictionary for album
+    album_stats = dict()
+    album_stats['album_id'] = target_album_id
+    album_stats['album_name'] = target_album_info[0]
+    album_stats['release_date'] = target_album_info[1]
+    song_stats['album'] = album_stats
+
+    pprint.pprint(song_stats)
+    return song_stats
+
+
 def get_song_stats(target_song_name):
-    '''get all information regarding a song, starting with song name'''
+
+    '''get all information regarding a song, starting with song name
+       build the dict as you execute the queries
+    '''
     # get song id from song name
     target_song_id = get_id_from_song(target_song_name)
-    print(f'song id = {target_song_id}')
+    #print(f'song id = {target_song_id}')
 
     # get song information
     target_song_info = get_song_info_from_id(target_song_id)
-    print(f'song info = {target_song_info}')
+    #print(f'song info = {target_song_info}')
 
     # get album id
     target_album_id = get_album_from_song(target_song_id)
-    print(f'album id = {target_album_id}')
+    #print(f'album id = {target_album_id}')
 
     # get album name
-    target_album_name = get_album_from_id(target_album_id)
-    print(f'album info = {target_album_name}')
+    target_album_info = get_album_from_id(target_album_id)
+    #print(f'album info = {target_album_info}')
 
     # get artist id
-    target_artists = get_artist_from_song(target_song_id)
-    print(f'artist id(s) = {target_artists}')
+    target_artist_ids = get_artist_from_song(target_song_id)
+    #print(f'artist id(s) = {target_artist_ids}')
 
     # get artist(s) from id(s)
     target_artist_names = []
-    for a_id in target_artists:
+    for a_id in target_artist_ids:
         res = get_artist_from_id(a_id)
         target_artist_names.append(res)
-    print(f'artist name(s) = {target_artist_names}')
+    #print(f'artist name(s) = {target_artist_names}')
 
     # get genre id
-    target_genre_id = []
-    for t in artists:
-        res = get_genre_from_artist(t)
-        if len(res) > 0:
-            target_genre_id.append(res)
-    print(f'genre ids = {target_genre_id}')
+    target_genre_ids = {}
+    for curr_artist in target_artist_ids:
+        target_genre_ids[curr_artist] = []
+        curr_genres = get_genre_from_artist(curr_artist)
+        if len(curr_genres) > 0:
+            target_genre_ids[curr_artist].append(curr_genres)
+    #print(f'genre ids = {target_genre_ids}')
 
-    target_genre = []
-    for t in target_genre_id:
-        res = get_genre_from_id(t)
-        target_genre.append(res)
+    target_genres = {}
+    if len(target_genre_ids) > 0:
+        for g_ids in target_genre_ids.values():
+            for g_id in g_ids:
+                genre = get_genre_from_id(g_id)
+                target_genres[g_id] = genre
+        #print(f'genres = {target_genres}')
 
-    print(f'genres = {target_genre}')
+    # build and return the resulting dictionary
+    song_stats = build_dict(target_song_name, target_song_id, target_song_info,
+                            target_album_id, target_album_info,
+                            target_artist_ids, target_artist_names,
+                            target_genre_ids, target_genres)
+    return song_stats
 
-# TODO: get user guesses for specific puzzle, get all DAILY puzzles (user_id null), get all CUSTOM puzzles (user_id not null)
-# TODO 2: ...
+
+def create_user(username, password):
+    q = "INSERT INTO usr (user_id, username, password) SELECT COALESCE(MAX(user_id), -1) + 1, '{}', '{}' FROM usr".format(username,password)
+    print(q)
+    res = execute(q)
+    check = login(username, password)
+    if check:
+        return True
+    else: 
+        print("ERROR: Something went wrong when create account for {}.".format(username))
+        return False
+    
+
+def login(username, password):
+    '''checks for matching username/password row in usr table'''
+    q = "select user_id from usr where username='{}' and password='{}'".format(username,password)
+    res = execute(q)
+    if len(res) > 0:
+        user_id = res[0][0]
+        return user_id
+    # return user_id if exists
+    return None
+
+
+def get_user_stats(user_id):
+    user_id = get
+
+
+def insert_guess():
+    '''insert a new guess row'''
+    # check if user valid
+
+    # check if puzzle valid
+    pass
+
+def insert_puzzle():
+    '''insert a new puzzle row'''
+    pass
 
 # API QUERY=========================================================================================================
 # query API to get similar artists
