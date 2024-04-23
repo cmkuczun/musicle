@@ -14,9 +14,7 @@ print("\nTESTING: Commencing test driver functions.\n")
 print("* TEST 0: Basic query ---------------------------------------------------------")
 q = "select * from song where song_name like '%lemon%'"
 res = execute(q)
-if res is not None:
-    print("OUTPUT")
-    for elem in res: print(f'> {elem}')
+check_res(res)
 print("* TEST 0 complete.\n")
 
 
@@ -111,3 +109,50 @@ res = execute(q)
 check_res(res)
 print("* TEST 10 complete.\n")
 
+
+'''TEST 11: run a query to get all song info associated with song_id/song_title'''
+print("* TEST 11: Song info query ----------------------------------------------------")
+# get song id from song name
+song_name = 'Intoxica'
+song_id = get_id_from_song(song_name)
+print(f'song id = {song_id}')
+
+# get song information
+song_info = get_song_info_from_id(song_id)
+print(f'song info = {song_info}')
+
+# get album id
+album_id = get_album_from_song(song_id)
+print(f'album id = {album_id}')
+
+# get album name
+album_name = get_album_from_id(album_id)
+print(f'album info = {album_name}')
+
+# get artist id
+artists = get_artist_from_song(song_id)
+print(f'artist id(s) = {artists}')
+
+# get artist(s) from id(s)
+target_artist_name = []
+for aid in artists:
+    res = get_artist_from_id(aid)
+    target_artist_name.append(res)
+print(f'artist name(s) = {target_artist_name}')
+
+# get genre id
+target_genre_id = []
+for t in artists:
+    res = get_genre_from_artist(t)
+    if len(res) > 0:
+        target_genre_id.append(res)
+print(f'genre ids = {target_genre_id}')
+
+target_genre = []
+for t in target_genre_id:
+    res = get_genre_from_id(t)
+    target_genre.append(res)
+
+print(f'genres = {target_genre}')
+
+print("* TEST 11 complete.\n")
