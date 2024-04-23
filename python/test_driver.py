@@ -1,6 +1,5 @@
 from queries import *
 
-
 # TESTING=========================================================================================================
 def check_res(res):
     if res is not None:
@@ -109,50 +108,26 @@ res = execute(q)
 check_res(res)
 print("* TEST 10 complete.\n")
 
-
 '''TEST 11: run a query to get all song info associated with song_id/song_title'''
 print("* TEST 11: Song info query ----------------------------------------------------")
 # get song id from song name
 song_name = 'Intoxica'
-song_id = get_id_from_song(song_name)
-print(f'song id = {song_id}')
-
-# get song information
-song_info = get_song_info_from_id(song_id)
-print(f'song info = {song_info}')
-
-# get album id
-album_id = get_album_from_song(song_id)
-print(f'album id = {album_id}')
-
-# get album name
-album_name = get_album_from_id(album_id)
-print(f'album info = {album_name}')
-
-# get artist id
-artists = get_artist_from_song(song_id)
-print(f'artist id(s) = {artists}')
-
-# get artist(s) from id(s)
-target_artist_name = []
-for aid in artists:
-    res = get_artist_from_id(aid)
-    target_artist_name.append(res)
-print(f'artist name(s) = {target_artist_name}')
-
-# get genre id
-target_genre_id = []
-for t in artists:
-    res = get_genre_from_artist(t)
-    if len(res) > 0:
-        target_genre_id.append(res)
-print(f'genre ids = {target_genre_id}')
-
-target_genre = []
-for t in target_genre_id:
-    res = get_genre_from_id(t)
-    target_genre.append(res)
-
-print(f'genres = {target_genre}')
-
+song_stats = get_song_stats(song_name) # returns a dict
 print("* TEST 11 complete.\n")
+
+'''TEST 12: login as an existing user'''
+print("* TEST 12: Login existing user ------------------------------------------------")
+test_user = 'TESTUSERNAME2'
+test_pass = 'TESTPASSWORD2'
+test_user_id = login(test_user, test_pass)
+print(f'> OUTPUT: Test user id = {test_user_id}.')
+print("* TEST 12 complete.\n")
+
+'''TEST 13: create a new user, assign them a new user id'''
+print("* TEST 13: Create new user ----------------------------------------------------")
+
+# get song id from song name
+test_user = 'TESTCRTUSER2'
+test_pass = 'TESTCRTPASS2'
+stats = create_user(test_user,test_pass)
+print("* TEST 13 complete.\n")
