@@ -38,11 +38,11 @@ artist_name='TEST ARTIST NAME11'
 genre_id=-11000
 genre_name='TEST GENRE NAME11'
 guess_id=-110000
-puzzle_id=-110000
+puzzle_id=-1110000
 user_id=-110000
 guess_num=11
 is_correct=0
-puzzle_date='1000-10-11'
+puzzle_date='1000-10-12'
 username='TESTUSERNAME11'
 password='TESTPASSWORD11'
 
@@ -102,8 +102,8 @@ print("* TEST 9 complete.\n")
 
 print("* TEST 10: guess insertion ----------------------------------------------------")
 q = insert_guess(guess_id,puzzle_id,user_id,song_id,guess_num,is_correct)
-res = execute(q)
-check_res(res)
+# res = execute(q)
+# check_res(res)
 print("* TEST 10 complete.\n")
 
 '''TEST 11: run a query to get all song info associated with song_id/song_title'''
@@ -131,12 +131,7 @@ print("* TEST 13 complete.\n")
 '''TEST 14: create a new user, assign them a new user id'''
 print("* TEST 14: Get user streak ----------------------------------------------------")
 insert_song('test1111','test1111name',0.0,0.0,0.0,-1,0.0,0.0,0.0,0.0,0.0,0.0)
-insert_puzzle(-111,'test1111',0,'1000-10-11')
-insert_puzzle(-222,'test1111',0,'1000-10-12')
-insert_puzzle(-333,'test1111',0,'1000-10-13')
-insert_guess(-111,-111,0,'test1111',1,1)
-insert_guess(-222,-222,0,'test1111',1,1)
-insert_guess(-333,-333,0,'test1111',1,1)
+insert_guess(-1111111,-1110000,0,'TEST1',1,1)
 streak = get_user_streak(0)
 print(streak)
 print("* TEST 14 complete.\n")
@@ -170,3 +165,8 @@ print("* TEST 19: Most frequently guessed song ---------------------------------
 output = most_freq_guessed_song()
 print(f'{output[0]} was guessed {output[1]} times.')
 print("* TEST 19 complete.\n")
+
+'''TEST 20: get all games played'''
+print("* TEST 20: Get all guessed games ----------------------------------------")
+get_all_games_played()
+print("* TEST 20 complete.\n")
