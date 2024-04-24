@@ -1,6 +1,7 @@
 import cx_Oracle
 import requests
 import pprint
+from datetime import datetime, timedelta
 
 # ORACLE DB SETUP====================================================================================================
 # create connection
@@ -24,7 +25,6 @@ except Exception as e:
 # API KEY FOR LAST.FM=========================================================================================================
 api_key = 'YOUR_API_KEY'
 
-
 # EXECUTE QUERIES=========================================================================================================
 def execute(q):
     # check for insert statement
@@ -40,14 +40,13 @@ def execute(q):
         # fetch results
         for row in cursor:
             res.append(row)
-        print(f"SUCCESS: Query executed successfully ({q}).\n")
+        #print(f"SUCCESS: Query executed successfully ({q}).\n")
         return res
     
     except Exception as e:
         print("ERROR: ", e)
         connection.rollback()
         return None
-
 
 # INSERT QUERIES=========================================================================================================
 # build query strings to insert into a table
@@ -185,7 +184,6 @@ def insert_artist(*args):
     q = "INSERT INTO artist VALUES ('" + artist_id + "', '" + artist_name + "')"
     return q
 
-
 # BASIC QUERIES=========================================================================================================
 # build query strings to search for specific data
 def get_id_from_song(song_name):
@@ -267,6 +265,12 @@ def get_user_id(username,password):
     user_id = res[0][0]
     return user_id
 
+def insert_guess_test():
+    '''insert a new guess row'''
+    # check if user valid
+
+    # check if puzzle valid
+    pass
 
 # ADVANCED FUNCTIONS=========================================================================================================
 def build_dict(target_song_name, target_song_id, target_song_info,
@@ -373,11 +377,12 @@ def get_song_stats(target_song_name):
 
 def create_user(username, password):
     q = "INSERT INTO usr (user_id, username, password) SELECT COALESCE(MAX(user_id), -1) + 1, '{}', '{}' FROM usr".format(username,password)
-    print(q)
     res = execute(q)
-    check = login(username, password)
-    if check:
-        return True
+    check_insert = login(username, password)
+    # check if inserted properly
+    if check_insert:
+        # return the user_id of new user
+        return check_insert
     else: 
         print("ERROR: Something went wrong when create account for {}.".format(username))
         return False
@@ -394,24 +399,207 @@ def login(username, password):
     return None
 
 
-def get_user_stats(user_id):
-    user_id = get
+def get_user_streak(user_id):
+    '''get user daily streak: how many days in a row played puzzles'''
+    streak = 0
+    q = f"""
+        SELECT COUNT(*) AS streak
+        FROM (
+            SELECT puzzle_date,
+                ROW_NUMBER() OVER (ORDER BY puzzle_date) - ROW_NUMBER() 
+                OVER (PARTITION BY trunc(puzzle_date) ORDER BY puzzle_date) AS grp
+            FROM (
+                SELECT p.puzzle_date
+                FROM puzzle p
+                LEFT JOIN guess g ON p.puzzle_id = g.puzzle_id AND p.user_id = g.user_id
+                WHERE p.user_id = {user_id}
+                AND (g.user_id IS NOT NULL OR p.user_id = {user_id})
+            )
+        )
+        WHERE ROWNUM < 2
+        GROUP BY grp
+        ORDER BY COUNT(*) DESC
+    """
+    res = execute(q)
+    streak = res[0][0] 
+    return streak
 
 
-def insert_guess():
-    '''insert a new guess row'''
-    # check if user valid
+def get_top_10_by_streak(user_id):
+    ''' get top 10 players by daily streaks
+        include the inputted user_id in top 10 or as an additional output
+        
+        returns: dictionary of {user_id: current_streak}'''
+    
+    players = {}
+    q = f"""
+        SELECT user_id, streak
+        FROM (
+            SELECT user_id, streak,
+                RANK() OVER (ORDER BY streak DESC) AS rank
+            FROM (
+                SELECT user_id,
+                    COUNT(*) AS streak
+                FROM (
+                    SELECT p.user_id,
+                        ROW_NUMBER() OVER (PARTITION BY p.user_id ORDER BY p.puzzle_date) -
+                        ROW_NUMBER() OVER (PARTITION BY p.user_id, trunc(p.puzzle_date) ORDER BY p.puzzle_date) AS grp
+                    FROM puzzle p
+                    LEFT JOIN guess g ON p.puzzle_id = g.puzzle_id AND p.user_id = g.user_id
+                    WHERE (g.user_id IS NOT NULL OR p.user_id = {user_id})
+                )
+                GROUP BY user_id, grp
+            )
+        )
+        WHERE rank <= 10 OR user_id = {user_id}
+        ORDER BY rank
+        """
+    res = execute(q)
+    for r in res:
+        players[r[0]] = r[1]
+    return players
 
-    # check if puzzle valid
-    pass
 
-def insert_puzzle():
-    '''insert a new puzzle row'''
-    pass
+def get_top_10_by_solves(user_id):
+    '''get top 10 players by number of rounds needed to solve puzzles (including inputted user)'''
+    players = []
+    q = f"""
+        SELECT user_id, total_rounds
+        FROM (
+            SELECT user_id, total_rounds,
+                RANK() OVER (ORDER BY total_rounds ASC) AS rank
+            FROM (
+                SELECT user_id,
+                    SUM(
+                        CASE
+                            WHEN is_correct = 1 THEN guess_num
+                            ELSE 0
+                        END
+                    ) AS total_rounds
+                FROM (
+                    SELECT p.user_id, g.is_correct, g.guess_num,
+                        SUM(
+                            CASE
+                                WHEN g.is_correct = 1 THEN 1
+                                ELSE 0
+                            END
+                        ) OVER (PARTITION BY p.user_id, p.puzzle_id ORDER BY g.guess_id) AS correct_guesses
+                    FROM puzzle p
+                    JOIN guess g ON p.puzzle_id = g.puzzle_id AND p.user_id = g.user_id
+                ) sub
+                WHERE correct_guesses > 0
+                GROUP BY user_id
+            )
+        )
+        WHERE rank <= 10 OR user_id = {user_id}
+        ORDER BY total_rounds
+        """
+    # TODO NOT WORKING
+    res = execute(q)
+    for r in res:
+        players[r[0]] = r[1]
+    return players
+   
+
+def get_top_10_by_avg_rounds(user_id):
+    '''get top 10 players by average rounds needed to solve puzzles including inputted user'''
+    q = f"""
+        WITH AvgRounds AS (
+        SELECT
+            p.user_id,
+            AVG(
+                CASE 
+                    WHEN g.is_correct = 1 
+                        THEN g.guess_num 
+                    ELSE NULL END
+            ) AS avg_rounds,
+            RANK() OVER (ORDER BY AVG(CASE WHEN g.is_correct = 1 THEN g.guess_num ELSE NULL END) ASC) AS rank
+        FROM puzzle p
+        JOIN guess g ON p.puzzle_id = g.puzzle_id 
+            AND p.user_id = g.user_id
+        GROUP BY p.user_id
+        HAVING MAX(g.is_correct) = 1
+    )
+    SELECT user_id, AVG(avg_rounds) AS average_rounds
+    FROM AvgRounds
+    WHERE rank <= 10 OR user_id = {user_id}
+    GROUP BY user_id
+    ORDER BY average_rounds
+    """
+    # TODO NOT WORKING
+    players = {}
+    res = execute(q)
+    for r in res:
+        players[r[0]] = r[1]
+    return players
+
+
+def get_overall_total_solved():
+    '''get total unique games solved by all players
+        i.e. count number of unique game id's for which there is a is_correct=1'''
+    # TODO NOT WORKING
+    count = 0
+    q = """
+        SELECT COUNT(DISTINCT puzzle_id) AS total_solved
+        FROM guess
+        WHERE is_correct = 1
+        """
+    res = execute(q)
+    try:
+        count = res[0][0]
+        return count
+    except Exception as e:
+        print(f"ERROR: {e}")
+        return None
+
+
+def get_avg_solved_game_len():
+    '''get average game solve length by all players'''
+    average = 0
+    q = """
+        WITH AvgRounds AS (
+            SELECT
+                p.user_id,
+                SUM(
+                    CASE WHEN g.is_correct = 1 THEN g.guess_num ELSE NULL END
+                ) AS total_rounds,
+                COUNT(DISTINCT p.puzzle_id) AS solved_puzzles_count
+            FROM
+                puzzle p
+            JOIN
+                guess g ON p.puzzle_id = g.puzzle_id AND p.user_id = g.user_id
+            WHERE
+                g.is_correct = 1
+            GROUP BY
+                p.user_id
+            )
+            SELECT
+                AVG(total_rounds) AS average_game_solve_length
+            FROM
+        AvgRounds;
+        """
+    return average
+
+
+def most_freq_guessed_song():
+    '''get the most frequently guessed song'''
+    q = """
+        SELECT * FROM (
+            SELECT s.song_name, COUNT(*) AS guess_count
+            FROM guess g
+            JOIN song s ON g.song_id = s.song_id
+            GROUP BY s.song_name
+            ORDER BY guess_count DESC
+        ) WHERE ROWNUM < 2
+        """
+    res = execute(q)
+    # return song_name,count
+    return res[0]
+
 
 # API QUERY=========================================================================================================
 # query API to get similar artists
-def get_similar_artists(artist_name):#
+def query_similar_artists(artist_name):#
     url = f"http://ws.audioscrobbler.com/2.0/?method=artist.getsimilar&artist={artist_name}&api_key={api_key}&format=json"
     
     try:
