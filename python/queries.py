@@ -110,7 +110,7 @@ def insert_guess(*args):
     guess_num=str(guess_num)
     is_correct=str(is_correct)
     q = "INSERT INTO guess VALUES (" + guess_id + ", " + puzzle_id + ", " + user_id + ", '" + song_id + "', " + guess_num + ", " + is_correct + ")"
-    return q
+    res = execute(q)
 
 def insert_song_artist(*args):
     '''
@@ -496,9 +496,10 @@ def get_top_10_by_solves(user_id):
         """
     # TODO NOT WORKING
     res = execute(q)
-    for r in res:
-        players[r[0]] = r[1]
-    return players
+    print(res)
+    # for r in res:
+    #     players[r[0]] = r[1]
+    # return players
    
 
 def get_top_10_by_avg_rounds(user_id):
@@ -545,6 +546,7 @@ def get_overall_total_solved():
         WHERE is_correct = 1
         """
     res = execute(q)
+    print(res)
     try:
         count = res[0][0]
         return count
@@ -595,6 +597,17 @@ def most_freq_guessed_song():
     res = execute(q)
     # return song_name,count
     return res[0]
+
+
+def get_all_games_played():
+    '''get all unique puzzle ids'''
+    q = """
+        SELECT COUNT(DISTINCT puzzle_id)
+        FROM puzzle
+        """
+    res = execute(q)
+    print(res[0][0])
+    return res[0][0]
 
 
 # API QUERY=========================================================================================================
