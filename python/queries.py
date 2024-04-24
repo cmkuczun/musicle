@@ -3,7 +3,13 @@ import requests
 import pprint
 from datetime import datetime, timedelta
 
-# ORACLE DB SETUP====================================================================================================
+'''
+TODO
+- top 10 by solves
+- top 10 by avg num rounds
+'''
+
+# ORACLE DB SETUP========================================================================================================
 # create connection
 try: 
     dsn_tns=cx_Oracle.makedsn('localhost','1521','xe')
@@ -22,9 +28,6 @@ except Exception as e:
     print("ERROR: ", e)
 
 
-# API KEY FOR LAST.FM=========================================================================================================
-api_key = 'YOUR_API_KEY'
-
 # EXECUTE QUERIES=========================================================================================================
 def execute(q):
     # check for insert statement
@@ -40,7 +43,7 @@ def execute(q):
         # fetch results
         for row in cursor:
             res.append(row)
-        #print(f"SUCCESS: Query executed successfully ({q}).\n")
+        # print(f"SUCCESS: Query executed successfully ({q}).\n")
         return res
     
     except Exception as e:
@@ -48,8 +51,8 @@ def execute(q):
         connection.rollback()
         return None
 
+
 # INSERT QUERIES=========================================================================================================
-# build query strings to insert into a table
 def insert_song(*args):
     '''
     song_id str primary key,
@@ -184,10 +187,12 @@ def insert_artist(*args):
     q = "INSERT INTO artist VALUES ('" + artist_id + "', '" + artist_name + "')"
     return q
 
+
 # BASIC QUERIES=========================================================================================================
-# build query strings to search for specific data
 def get_id_from_song(song_name):
-    '''search for song id using EXACT song name'''
+    ''' search for song id using EXACT song name
+        returns: song id
+    '''
     q = "select song_id from song where song_name like '{}'".format(song_name) 
     res = execute(q)
     # handle multiple songs
@@ -199,25 +204,33 @@ def get_id_from_song(song_name):
     return res[0][0]
 
 def get_song_info_from_id(song_id):
-    '''get song characteristics using song id'''
+    ''' get song characteristics using song id
+        returns: array of song characteristics
+    '''
     q = "select danceability,energy,loudness,song_mode,speechiness,acousticness,instrumentalness,liveness,valence,tempo from song where song_id like '{}'".format(song_id) 
     res = execute(q)
     return list(res[0])
 
 def get_album_from_song(song_id):
-    '''get album id from song id'''
+    ''' get album id from song id
+        returns: album id
+    '''
     q = "select album_id from song_album where song_id='{}'".format(song_id)
     res = execute(q)
     return res[0][0]
 
 def get_album_from_id(album_id):
-    '''get album info from album_id'''
+    ''' get album info from album_id
+        returns: array of [album name, release date]
+    '''
     q = "select album_name,release_date from album where album_id='{}'".format(album_id)
     res = execute(q)
     return list(res[0])
 
 def get_artist_from_song(song_id):
-    '''get artist id from song id'''
+    ''' get artist id from song id
+        returns: artist_id
+    '''
     q = "select artist_id from song_artist where song_id='{}'".format(song_id)
     res = execute(q)
     # handle multiple artists
@@ -229,14 +242,18 @@ def get_artist_from_song(song_id):
     return list(res[0])
 
 def get_artist_from_id(artist_id):
-    '''get artist name from artist id'''
+    ''' get artist name from artist id
+        returns: artist name
+    '''
     q = "select artist_name from artist where artist_id='{}'".format(artist_id)
     res = execute(q)
     return res[0][0]
 
 def get_genre_from_artist(artist_id):
-    '''get genre id from artist id'''
-    q = "select * from artist_genre where artist_id='{}'".format(artist_id)
+    ''' get genre id from artist id
+        returns: genre_id
+    '''
+    q = "select genre_id from artist_genre where artist_id='{}'".format(artist_id)
     res = execute(q)
     # handle multiple genres
     if len(res) == 0:
@@ -250,33 +267,33 @@ def get_genre_from_artist(artist_id):
     return res[0][0]
 
 def get_genre_from_id(genre_id):
-    '''get genre name from genre id'''
+    ''' get genre name from genre id
+        returns: genre name
+    '''
     if genre_id is not None:
-        print(genre_id)
         q = "select genre_name from genre where genre_id='{}'".format(str(genre_id))
         res = execute(q)
         return res[0][0]
     return None
 
 def get_user_id(username,password):
-    '''supporting method to return just user id'''
+    ''' supporting method to return just user id
+        returns: user id
+    '''
     q = "select user_id from usr where username='{}' and password='{}'".format(username,password)
     res = execute(q)
     user_id = res[0][0]
     return user_id
 
-def insert_guess_test():
-    '''insert a new guess row'''
-    # check if user valid
 
-    # check if puzzle valid
-    pass
-
-# ADVANCED FUNCTIONS=========================================================================================================
+# ADVANCED FUNCTIONS====================================================================================================
 def build_dict(target_song_name, target_song_id, target_song_info,
                 target_album_id, target_album_info,
                 target_artist_ids, target_artist_names,
                 target_genre_ids, target_genres):
+    ''' given song statistics, form a dictionary (JSON object)
+        returns: dictionary of a song and all associated information
+    '''
     song_stats = dict()
     song_stats['song id'] = target_song_id # add to output dict
     song_stats['song name'] = target_song_name
@@ -290,10 +307,8 @@ def build_dict(target_song_name, target_song_id, target_song_info,
     song_stats['liveness'] = target_song_info[7]
     song_stats['valence'] = target_song_info[8]
     song_stats['tempo'] = target_song_info[9]
-
-    song_stats['artists'] = []
-    
     # make a dictionary for all artists
+    song_stats['artists'] = []
     for a_id, a_name in zip(target_artist_ids,target_artist_names):
         curr_artist = dict()
         curr_artist['artist_id'] = a_id
@@ -306,67 +321,48 @@ def build_dict(target_song_name, target_song_id, target_song_info,
             curr_genres[g_id] = g_name
         curr_artist['genres'] = curr_genres
         song_stats['artists'].append(curr_artist)
-
     # make a dictionary for album
     album_stats = dict()
     album_stats['album_id'] = target_album_id
     album_stats['album_name'] = target_album_info[0]
     album_stats['release_date'] = target_album_info[1]
     song_stats['album'] = album_stats
-
+    # print output and make dict
     pprint.pprint(song_stats)
     return song_stats
 
-
 def get_song_stats(target_song_name):
-
     '''get all information regarding a song, starting with song name
        build the dict as you execute the queries
+       returns: the song's information
     '''
     # get song id from song name
     target_song_id = get_id_from_song(target_song_name)
-    #print(f'song id = {target_song_id}')
-
     # get song information
     target_song_info = get_song_info_from_id(target_song_id)
-    #print(f'song info = {target_song_info}')
-
     # get album id
     target_album_id = get_album_from_song(target_song_id)
-    #print(f'album id = {target_album_id}')
-
     # get album name
     target_album_info = get_album_from_id(target_album_id)
-    #print(f'album info = {target_album_info}')
-
     # get artist id
     target_artist_ids = get_artist_from_song(target_song_id)
-    #print(f'artist id(s) = {target_artist_ids}')
-
     # get artist(s) from id(s)
     target_artist_names = []
     for a_id in target_artist_ids:
         res = get_artist_from_id(a_id)
         target_artist_names.append(res)
-    #print(f'artist name(s) = {target_artist_names}')
-
     # get genre id
     target_genre_ids = {}
     for curr_artist in target_artist_ids:
         target_genre_ids[curr_artist] = []
         curr_genres = get_genre_from_artist(curr_artist)
-        if len(curr_genres) > 0:
-            target_genre_ids[curr_artist].append(curr_genres)
-    #print(f'genre ids = {target_genre_ids}')
-
+        target_genre_ids[curr_artist].append(curr_genres)
     target_genres = {}
     if len(target_genre_ids) > 0:
         for g_ids in target_genre_ids.values():
             for g_id in g_ids:
                 genre = get_genre_from_id(g_id)
                 target_genres[g_id] = genre
-        #print(f'genres = {target_genres}')
-
     # build and return the resulting dictionary
     song_stats = build_dict(target_song_name, target_song_id, target_song_info,
                             target_album_id, target_album_info,
@@ -374,10 +370,14 @@ def get_song_stats(target_song_name):
                             target_genre_ids, target_genres)
     return song_stats
 
-
 def create_user(username, password):
+    ''' create a new user given username/password
+        returns: user id (if exists) or False (something went wrong)
+    '''
+    # create a new user
     q = "INSERT INTO usr (user_id, username, password) SELECT COALESCE(MAX(user_id), -1) + 1, '{}', '{}' FROM usr".format(username,password)
     res = execute(q)
+    # check that you can login as the user (it exists)
     check_insert = login(username, password)
     # check if inserted properly
     if check_insert:
@@ -387,20 +387,24 @@ def create_user(username, password):
         print("ERROR: Something went wrong when create account for {}.".format(username))
         return False
     
-
 def login(username, password):
-    '''checks for matching username/password row in usr table'''
+    ''' checks for matching username/password row in usr table
+        returns: user_id if exists or None if does not exist
+    '''
+    # try to get the user id
     q = "select user_id from usr where username='{}' and password='{}'".format(username,password)
     res = execute(q)
     if len(res) > 0:
+        # return user_id if exists
         user_id = res[0][0]
         return user_id
-    # return user_id if exists
+    # return NULL
     return None
 
-
 def get_user_streak(user_id):
-    '''get user daily streak: how many days in a row played puzzles'''
+    ''' get user daily streak: how many days in a row played puzzles
+        returns: streak of inputted user id
+    '''
     streak = 0
     q = f"""
         SELECT COUNT(*) AS streak
@@ -421,15 +425,17 @@ def get_user_streak(user_id):
         ORDER BY COUNT(*) DESC
     """
     res = execute(q)
-    streak = res[0][0] 
+    if len(res) == 0:
+        streak = 0
+    else:
+        streak = res[0]
     return streak
-
 
 def get_top_10_by_streak(user_id):
     ''' get top 10 players by daily streaks
         include the inputted user_id in top 10 or as an additional output
-        
-        returns: dictionary of {user_id: current_streak}'''
+        returns: dictionary of {user_id: current_streak}
+    '''
     
     players = {}
     q = f"""
@@ -459,10 +465,11 @@ def get_top_10_by_streak(user_id):
         players[r[0]] = r[1]
     return players
 
-
 def get_top_10_by_solves(user_id):
-    '''get top 10 players by number of rounds needed to solve puzzles (including inputted user)'''
-    players = []
+    ''' get top 10 players by number of rounds needed to solve puzzles (including inputted user)
+        returns: dictionary of {user id: number of rounds}
+    '''
+    players = {}
     q = f"""
         SELECT user_id, total_rounds
         FROM (
@@ -496,14 +503,16 @@ def get_top_10_by_solves(user_id):
         """
     # TODO NOT WORKING
     res = execute(q)
-    print(res)
-    # for r in res:
-    #     players[r[0]] = r[1]
-    # return players
+    for r in res:
+        p_id = r[0]
+        num_rounds = r[1]
+        players[p_id] = num_rounds
+    return players
    
-
 def get_top_10_by_avg_rounds(user_id):
-    '''get top 10 players by average rounds needed to solve puzzles including inputted user'''
+    ''' get top 10 players by average rounds needed to solve puzzles including inputted user
+        returns: dictionary of {player id: average rounds}
+    '''
     q = f"""
         WITH AvgRounds AS (
         SELECT
@@ -527,18 +536,17 @@ def get_top_10_by_avg_rounds(user_id):
     GROUP BY user_id
     ORDER BY average_rounds
     """
-    # TODO NOT WORKING
     players = {}
     res = execute(q)
     for r in res:
         players[r[0]] = r[1]
     return players
 
-
 def get_overall_total_solved():
-    '''get total unique games solved by all players
-        i.e. count number of unique game id's for which there is a is_correct=1'''
-    # TODO NOT WORKING
+    ''' get total unique games solved by all players
+        i.e. count number of unique game id's for which there is a is_correct=1
+        returns: number of solved games
+    '''
     count = 0
     q = """
         SELECT COUNT(DISTINCT puzzle_id) AS total_solved
@@ -546,7 +554,6 @@ def get_overall_total_solved():
         WHERE is_correct = 1
         """
     res = execute(q)
-    print(res)
     try:
         count = res[0][0]
         return count
@@ -554,9 +561,10 @@ def get_overall_total_solved():
         print(f"ERROR: {e}")
         return None
 
-
 def get_avg_solved_game_len():
-    '''get average game solve length by all players'''
+    ''' get average game solve length by all players
+        returns: number 
+    '''
     average = 0
     q = """
         WITH AvgRounds AS (
@@ -566,14 +574,11 @@ def get_avg_solved_game_len():
                     CASE WHEN g.is_correct = 1 THEN g.guess_num ELSE NULL END
                 ) AS total_rounds,
                 COUNT(DISTINCT p.puzzle_id) AS solved_puzzles_count
-            FROM
-                puzzle p
+            FROM puzzle p
             JOIN
                 guess g ON p.puzzle_id = g.puzzle_id AND p.user_id = g.user_id
-            WHERE
-                g.is_correct = 1
-            GROUP BY
-                p.user_id
+            WHERE g.is_correct = 1
+            GROUP BY p.user_id
             )
             SELECT
                 AVG(total_rounds) AS average_game_solve_length
@@ -581,7 +586,6 @@ def get_avg_solved_game_len():
         AvgRounds;
         """
     return average
-
 
 def most_freq_guessed_song():
     '''get the most frequently guessed song'''
@@ -598,7 +602,6 @@ def most_freq_guessed_song():
     # return song_name,count
     return res[0]
 
-
 def get_all_games_played():
     '''get all unique puzzle ids'''
     q = """
@@ -606,11 +609,13 @@ def get_all_games_played():
         FROM puzzle
         """
     res = execute(q)
-    print(res[0][0])
     return res[0][0]
 
 
-# API QUERY=========================================================================================================
+# API KEY FOR LAST.FM====================================================================================================
+api_key = 'YOUR_API_KEY'
+
+# API QUERY==============================================================================================================
 # query API to get similar artists
 def query_similar_artists(artist_name):#
     url = f"http://ws.audioscrobbler.com/2.0/?method=artist.getsimilar&artist={artist_name}&api_key={api_key}&format=json"
@@ -628,7 +633,4 @@ def query_similar_artists(artist_name):#
     except Exception as e:
         print(f"ERROR: {e}")
         return None
-
-
-
 
