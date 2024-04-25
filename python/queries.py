@@ -193,7 +193,7 @@ def get_id_from_song(song_name):
     ''' search for song id using EXACT song name
         returns: song id
     '''
-    q = "select song_id from song where song_name like '{}'".format(song_name) 
+    q = "select song_id from song where song_name like '%{}%'".format(song_name) 
     res = execute(q)
     # handle multiple songs
     if len(res) > 1:
@@ -284,6 +284,38 @@ def get_user_id(username,password):
     res = execute(q)
     user_id = res[0][0]
     return user_id
+
+def get_album_id_from_album(album_str):
+    '''returns: album ids for albums matching the input string'''
+    output = []
+    q = "select album_id from album where album_name like '%{}%'".format(album_str)
+    res = execute(q)
+    for entry in res:
+        output.append(entry[0])
+    return output
+
+def get_artist_id_from_artist(artist_str):
+    '''returns: artist ids for artists matching the input string'''
+    output = []
+    q = "select artist_id from artist where artist_name like '%{}%'".format(artist_str)
+    res = execute(q)
+    for entry in res:
+        output.append(entry[0])
+    return output
+
+def get_song_from_artist(artist_id):
+    '''returns: song id associated with artist id'''
+    song_id = None
+    q = ""
+    # TODO query & parse result
+    return song_id
+
+def get_song_from_album(album_id):
+    '''returns: song id associated with album id'''
+    song_id = None
+    q = ""
+    # TODO query & parse result
+    return song_id
 
 
 # ADVANCED FUNCTIONS====================================================================================================
@@ -428,7 +460,7 @@ def get_user_streak(user_id):
     if len(res) == 0:
         streak = 0
     else:
-        streak = res[0]
+        streak = res[0][0]
     return streak
 
 def get_top_10_by_streak(user_id):
@@ -610,6 +642,31 @@ def get_all_games_played():
         """
     res = execute(q)
     return res[0][0]
+
+def get_songs_from_input(input_str):
+    ''' get albums that match input, then match album ids with songs
+        get artists that match input, then match these artists' ids with songs
+        also get song names that match input string
+        returns: set of song stats dictionaries containing the matching albums
+    ''' 
+    output = []
+    # get albums, artists, songs that match the input
+    matching_albums = get_album_id_from_album(input_str)
+    matching_artists = get_artist_id_from_artist(input_str)
+    matching_songs = get_id_from_song(input_str) # returns song ids
+    # get song ids from artists
+    for a_id in matching_artists:
+        associated_s_id = get_song_from_artist(a_id)
+        matching_songs.append(associated_s_id)
+    # get song ids from albums
+    for a_id in matching_albums:
+        associated_s_id = get_song_from_album(a_id)
+        matching_songs.append(associated_s_id)
+    # get song info for each song id
+    for s_id in matching_songs:
+        s_info = get_song_stats(s_id)
+        output.append(s_info)
+    return output
 
 
 # API KEY FOR LAST.FM====================================================================================================
