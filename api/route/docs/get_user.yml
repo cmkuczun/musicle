@@ -1,0 +1,44 @@
+---
+tags:
+  - name: "users"
+summary: "Get user by ID"
+description: "Retrieve a user by their unique user ID."
+operationId: "getUser"
+parameters:
+  - name: "user_id"
+    in: "path"
+    required: true
+    description: "Unique identifier of the user to retrieve."
+    schema:
+      type: "integer"
+responses:
+  200:
+    description: "Successful retrieval of user information"
+    content:
+      application/json:
+        schema:
+          type: "object"
+          properties:
+            id:
+              type: "integer"
+              description: "The user's ID."
+  404:
+    description: "User not found"
+    content:
+      application/json:
+        schema:
+          type: "object"
+          properties:
+            message:
+              type: "string"
+              default: "User not found"
+  400:
+    description: "Invalid input, user ID must be an integer"
+    content:
+      application/json:
+        schema:
+          type: "object"
+          properties:
+            message:
+              type: "string"
+              default: "Invalid ID supplied"

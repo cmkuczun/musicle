@@ -1,6 +1,5 @@
 from queries import *
 
-
 # TESTING=========================================================================================================
 def check_res(res):
     if res is not None:
@@ -14,14 +13,13 @@ print("\nTESTING: Commencing test driver functions.\n")
 print("* TEST 0: Basic query ---------------------------------------------------------")
 q = "select * from song where song_name like '%lemon%'"
 res = execute(q)
-check_res(res)
 print("* TEST 0 complete.\n")
 
 
 '''TESTS 1-10: run 10 queries to test inserting into all tables'''
 # INPUTS
-song_id='TESTSONGID6'
-song_name='TEST SONG NAME6'
+song_id='TEST1'
+song_name='TEST SONG NAME11'
 danceability=0.0
 energy=0.0
 loudness=0.0
@@ -32,26 +30,25 @@ instrumentalness=0.0
 liveness=0.0
 valence=0.0
 tempo=0.0
-album_id='TESTALBUMID6'
-album_name='TEST ALBUM NAME6'
-release_date='1000-10-10'
+album_id='TESTALBUMID11'
+album_name='TEST ALBUM NAME11'
+release_date='1000-10-11'
 artist_id='TESTARTISTID6'
-artist_name='TEST ARTIST NAME6'
-genre_id=-6000
-genre_name='TEST GENRE NAME6'
-guess_id=-60000
-puzzle_id=-60000
-user_id=-60000
-guess_num=6
+artist_name='TEST ARTIST NAME11'
+genre_id=-11000
+genre_name='TEST GENRE NAME11'
+guess_id=-110000
+puzzle_id=-110000
+user_id=-110000
+guess_num=11
 is_correct=0
-puzzle_date='1000-10-10'
-username='TESTUSERNAME6'
-password='TESTPASSWORD6'
+puzzle_date='1000-10-11'
+username='TESTUSERNAME11'
+password='TESTPASSWORD11'
 
 print("* TEST 1: song insertion ------------------------------------------------------")
 q = insert_song(song_id,song_name,danceability,energy,loudness,song_mode,speechiness,acousticness,instrumentalness,liveness,valence,tempo)
 res = execute(q)
-check_res(res)
 print("* TEST 1 complete.\n")
 
 print("* TEST 2: album insertion -----------------------------------------------------")
@@ -109,50 +106,67 @@ res = execute(q)
 check_res(res)
 print("* TEST 10 complete.\n")
 
-
 '''TEST 11: run a query to get all song info associated with song_id/song_title'''
 print("* TEST 11: Song info query ----------------------------------------------------")
 # get song id from song name
 song_name = 'Intoxica'
-song_id = get_id_from_song(song_name)
-print(f'song id = {song_id}')
-
-# get song information
-song_info = get_song_info_from_id(song_id)
-print(f'song info = {song_info}')
-
-# get album id
-album_id = get_album_from_song(song_id)
-print(f'album id = {album_id}')
-
-# get album name
-album_name = get_album_from_id(album_id)
-print(f'album info = {album_name}')
-
-# get artist id
-artists = get_artist_from_song(song_id)
-print(f'artist id(s) = {artists}')
-
-# get artist(s) from id(s)
-target_artist_name = []
-for aid in artists:
-    res = get_artist_from_id(aid)
-    target_artist_name.append(res)
-print(f'artist name(s) = {target_artist_name}')
-
-# get genre id
-target_genre_id = []
-for t in artists:
-    res = get_genre_from_artist(t)
-    if len(res) > 0:
-        target_genre_id.append(res)
-print(f'genre ids = {target_genre_id}')
-
-target_genre = []
-for t in target_genre_id:
-    res = get_genre_from_id(t)
-    target_genre.append(res)
-
-print(f'genres = {target_genre}')
-
+song_stats = get_song_stats(song_name) # returns a dict
 print("* TEST 11 complete.\n")
+
+'''TEST 12: login as an existing user'''
+print("* TEST 12: Login existing user ------------------------------------------------")
+test_user = 'TESTUSERNAME2'
+test_pass = 'TESTPASSWORD2'
+test_user_id = login(test_user, test_pass)
+print(f'> OUTPUT: Test user id = {test_user_id}.')
+print("* TEST 12 complete.\n")
+
+'''TEST 13: create a new user, assign them a new user id'''
+print("* TEST 13: Create new user ----------------------------------------------------")
+test_user = 'TESTCRTUSER2'
+test_pass = 'TESTCRTPASS2'
+stats = create_user(test_user,test_pass)
+print("* TEST 13 complete.\n")
+
+'''TEST 14: create a new user, assign them a new user id'''
+print("* TEST 14: Get user streak ----------------------------------------------------")
+insert_song('test1111','test1111name',0.0,0.0,0.0,-1,0.0,0.0,0.0,0.0,0.0,0.0)
+insert_puzzle(-111,'test1111',0,'1000-10-11')
+insert_puzzle(-222,'test1111',0,'1000-10-12')
+insert_puzzle(-333,'test1111',0,'1000-10-13')
+insert_guess(-111,-111,0,'test1111',1,1)
+insert_guess(-222,-222,0,'test1111',1,1)
+insert_guess(-333,-333,0,'test1111',1,1)
+streak = get_user_streak(0)
+print(streak)
+print("* TEST 14 complete.\n")
+
+'''TEST 15: get top 10 players by streak'''
+print("* TEST 15: top 10 by streak ----------------------------------------------------")
+streaks = get_top_10_by_streak(0)
+print(streaks)
+print("* TEST 15 complete.\n")
+
+'''TEST 16: get top 10 players by solves'''
+print("* TEST 16: Top 10 players by solves ----------------------------------------------------")
+solvers = get_top_10_by_solves(0)
+print(solvers)
+print("* TEST 16 complete.\n")
+
+'''TEST 17: get top 10 players by avg number of rounds until solving'''
+print("* TEST 17: Top 10 players by avg num rounds ----------------------------------------------------")
+rounds = get_top_10_by_avg_rounds(0)
+print(rounds)
+print("* TEST 17 complete.\n")
+
+'''TEST 18: get count of all unique games solved'''
+print("* TEST 18: Count all games solved ----------------------------------------------------")
+cnt = get_overall_total_solved()
+print(cnt)
+print("* TEST 18 complete.\n")
+
+'''TEST 19: get most popular guess (song)'''
+print("* TEST 19: Most frequently guessed song ----------------------------------------------------")
+output = most_freq_guessed_song()
+print(f'{output[0]} was guessed {output[1]} times.')
+print("* TEST 19 complete.\n")

@@ -1,0 +1,10 @@
+
+
+select s.song_id, s.song_name, al.album_name, al.release_date, ar.artist_name
+        from SONG s 
+        JOIN SONG_ARTIST sa on s.song_id = sa.song_id
+        JOIN ARTIST ar on sa.artist_id = ar.artist_id
+        JOIN ARTIST_GENRE ag on ar.artist_id = ag.artist_id
+        JOIN GENRE g on ag.genre_id = g.genre_id
+        JOIN SONG_ALBUM sal on s.song_id = sal.song_id
+        JOIN ALBUM al on sal.album_id = al.album_id WHERE s.acousticness BETWEEN 0.294 * 0.85 AND 0.294 * 1.15 AND s.instrumentalness BETWEEN 0 * 0.85 AND 0 * 1.15 AND ar.artist_id IN (['1Xyo4u8uXC1ZmMpatF05PJ']) AND g.genre_name IN (['rap']) AND (s.song_name LIKE '%The%' OR al.album_name LIKE '%The%' OR ar.artist_name LIKE '%The%') 

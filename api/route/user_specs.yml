@@ -1,0 +1,13 @@
+---
+
+tags:
+  - name: users
+summary: Get all Users
+operationId: get_users_service()
+responses:
+  200:
+    description: A list of all users
+    content:
+      application/json:
+        schema:
+          type: "list"

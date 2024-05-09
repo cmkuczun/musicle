@@ -5,21 +5,38 @@ from datetime import datetime, timedelta
 
 # ORACLE DB SETUP====================================================================================================
 # create connection
-try: 
-    dsn_tns=cx_Oracle.makedsn('localhost','1521','xe')
-    connection = cx_Oracle.connect("guest", "guest", dsn_tns)
-    print("\nSTATUS: Connected to Oracle database.")
-except Exception as e:
-    print(print("\nSTATUS: Failed to connect to Oracle database."))
-    print("ERROR: ", e)
+# try: 
+#     dsn_tns=cx_Oracle.makedsn('localhost','1521','xe')
+#     connection = cx_Oracle.connect("guest", "guest", dsn_tns)
+#     print("\nSTATUS: Connected to Oracle database.")
+# except Exception as e:
+#     print(print("\nSTATUS: Failed to connect to Oracle database."))
+#     print("ERROR: ", e)
 
-# create cursor
-try: 
-    cursor = connection.cursor()
-    print("\nSTATUS: Cursor created.\n")
-except Exception as e:
-    print("\nSTATUS: Failed to create cursor.")
-    print("ERROR: ", e)
+# # create cursor
+# try: 
+#     cursor = connection.cursor()
+#     print("\nSTATUS: Cursor created.\n")
+# except Exception as e:
+#     print("\nSTATUS: Failed to create cursor.")
+#     print("ERROR: ", e)
+
+def db_connect():
+    try: 
+        dsn_tns=cx_Oracle.makedsn('localhost','1521','xe')
+        connection = cx_Oracle.connect("guest", "guest", dsn_tns)
+        #print("\nSTATUS: Connected to Oracle database.")
+    except Exception as e:
+        print(print("\nSTATUS: Failed to connect to Oracle database."))
+        print("ERROR: ", e)
+    try: 
+        cursor = connection.cursor()
+        #print("\nSTATUS: Cursor created.\n")
+        return cursor, connection
+    except Exception as e:
+        print("\nSTATUS: Failed to create cursor.")
+        print("ERROR: ", e)
+    return None
 
 
 # API KEY FOR LAST.FM=========================================================================================================
@@ -27,6 +44,8 @@ api_key = 'YOUR_API_KEY'
 
 # EXECUTE QUERIES=========================================================================================================
 def execute(q):
+
+    cursor, connection = db_connect()
     # check for insert statement
     if q.startswith("INSERT"):
         print("NOTE: Insert query; ignore 'NOT A QUERY' error.")
@@ -110,7 +129,7 @@ def insert_guess(*args):
     guess_num=str(guess_num)
     is_correct=str(is_correct)
     q = "INSERT INTO guess VALUES (" + guess_id + ", " + puzzle_id + ", " + user_id + ", '" + song_id + "', " + guess_num + ", " + is_correct + ")"
-    return q
+    res = execute(q)
 
 def insert_song_artist(*args):
     '''
@@ -420,9 +439,34 @@ def get_user_streak(user_id):
         GROUP BY grp
         ORDER BY COUNT(*) DESC
     """
-    res = execute(q)
-    streak = res[0][0] 
-    return streak
+    return 0 if not (res := execute(q) and len(res)) else res[0][0]
+
+
+
+def get_user_best_streak(user_id):
+    '''get user's best daily streak'''
+    streak = 0
+    q = f"""
+        SELECT MAX(streak) AS streak
+        FROM (
+            SELECT COUNT(*) AS streak
+            FROM (
+                SELECT puzzle_date,
+                    ROW_NUMBER() OVER (ORDER BY puzzle_date) - ROW_NUMBER() 
+                    OVER (PARTITION BY trunc(puzzle_date) ORDER BY puzzle_date) AS grp
+                FROM (
+                    SELECT p.puzzle_date
+                    FROM puzzle p
+                    LEFT JOIN guess g ON p.puzzle_id = g.puzzle_id AND p.user_id = g.user_id
+                    WHERE p.user_id = {user_id}
+                    AND (g.user_id IS NOT NULL OR p.user_id = {user_id})
+                )
+            )
+            GROUP BY grp
+        )
+    """
+    return 0 if not (res := execute(q) and len(res)) else res[0][0]
+
 
 
 def get_top_10_by_streak(user_id):
@@ -496,37 +540,41 @@ def get_top_10_by_solves(user_id):
         """
     # TODO NOT WORKING
     res = execute(q)
-    for r in res:
-        players[r[0]] = r[1]
-    return players
+    print(res)
+    # for r in res:
+    #     players[r[0]] = r[1]
+    # return players
    
 
 def get_top_10_by_avg_rounds(user_id):
-    '''get top 10 players by average rounds needed to solve puzzles including inputted user'''
+    ''' get top 10 players by lowerst average rounds needed to solve puzzles 
+        (including inputted user)
+        returns: dictionary of {player id: average rounds}
+    '''
     q = f"""
-        WITH AvgRounds AS (
-        SELECT
-            p.user_id,
-            AVG(
-                CASE 
-                    WHEN g.is_correct = 1 
-                        THEN g.guess_num 
-                    ELSE NULL END
-            ) AS avg_rounds,
-            RANK() OVER (ORDER BY AVG(CASE WHEN g.is_correct = 1 THEN g.guess_num ELSE NULL END) ASC) AS rank
-        FROM puzzle p
-        JOIN guess g ON p.puzzle_id = g.puzzle_id 
-            AND p.user_id = g.user_id
-        GROUP BY p.user_id
-        HAVING MAX(g.is_correct) = 1
-    )
-    SELECT user_id, AVG(avg_rounds) AS average_rounds
-    FROM AvgRounds
-    WHERE rank <= 10 OR user_id = {user_id}
-    GROUP BY user_id
-    ORDER BY average_rounds
+        SELECT user_id, average_rounds
+        FROM (
+            SELECT user_id, AVG(guess_num) AS average_rounds, RANK() OVER (ORDER BY AVG(guess_num) ASC) AS rank
+            FROM (
+                SELECT g.user_id, g.guess_num
+                FROM puzzle p
+                JOIN guess g ON p.puzzle_id = g.puzzle_id
+                WHERE g.is_correct = 1
+            ) sub
+            GROUP BY user_id
+            ORDER BY average_rounds
+        ) top_players
+        WHERE rank <= 10
+        UNION ALL
+        SELECT {user_id} AS user_id, AVG(guess_num) AS average_rounds
+        FROM (
+            SELECT g.user_id, g.guess_num
+            FROM puzzle p
+            JOIN guess g ON p.puzzle_id = g.puzzle_id
+            WHERE g.is_correct = 1
+        ) sub_inputted_user
+        WHERE user_id = {user_id}
     """
-    # TODO NOT WORKING
     players = {}
     res = execute(q)
     for r in res:
@@ -545,6 +593,7 @@ def get_overall_total_solved():
         WHERE is_correct = 1
         """
     res = execute(q)
+    print(res)
     try:
         count = res[0][0]
         return count
@@ -578,6 +627,7 @@ def get_avg_solved_game_len():
             FROM
         AvgRounds;
         """
+    
     return average
 
 
@@ -595,6 +645,16 @@ def most_freq_guessed_song():
     res = execute(q)
     # return song_name,count
     return res[0]
+
+
+def get_all_games_played():
+    '''get all unique puzzle ids'''
+    q = """
+        SELECT COUNT(DISTINCT puzzle_id)
+        FROM puzzle
+        """
+    res = execute(q)
+    return res[0][0]
 
 
 # API QUERY=========================================================================================================
